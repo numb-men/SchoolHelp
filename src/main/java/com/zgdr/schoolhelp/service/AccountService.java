@@ -61,13 +61,7 @@ public class AccountService {
      */
     public String login(String phone, String password){
         User user = userRepository.findByPhoneIn(phone);
-        if (user == null) {
-            throw new AccountException(AccountResultEnum.NOT_USER);
-        }
-
-        if (! user.getPassword().equals(password)){
-            throw new AccountException(AccountResultEnum.PASSWORD_ERROR);
-        }
+        checkUser(user, password);
 
         return tokenService.getToken(user);
     }
@@ -83,18 +77,28 @@ public class AccountService {
      */
     public String changePassword(Integer userId, String oldPassword, String newPassword){
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            throw new AccountException(AccountResultEnum.NOT_USER);
-        }
-
-        if (! user.getPassword().equals(oldPassword)){
-            throw new AccountException(AccountResultEnum.PASSWORD_ERROR);
-        }
-
+        checkUser(user, oldPassword);
         user.setPassword(newPassword);
         userRepository.save(user);
 
         return tokenService.getToken(user);
+    }
 
+    /**
+     * 校验用户是否存在、密码是否正确
+     * @author hengyumo
+     * @since 2019/4/27
+     *
+     * @param user 用户
+     * @param password 密码
+     */
+    private void checkUser(User user, String password){
+        if (user == null) {
+            throw new AccountException(AccountResultEnum.NOT_USER);
+        }
+
+        if (! user.getPassword().equals(password)){
+            throw new AccountException(AccountResultEnum.PASSWORD_ERROR);
+        }
     }
 }

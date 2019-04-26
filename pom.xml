@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zgdr</groupId>
     <artifactId>schoolhelp</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.1</version>
     <name>schoolhelp</name>
     <description>SchoolHelp</description>
     <packaging>jar</packaging>
@@ -106,6 +106,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate-validator.version}</version>
         </dependency>
     </dependencies>
 

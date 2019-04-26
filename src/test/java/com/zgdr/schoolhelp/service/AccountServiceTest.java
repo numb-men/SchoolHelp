@@ -1,6 +1,7 @@
 package com.zgdr.schoolhelp.service;
 
 import com.zgdr.schoolhelp.domain.User;
+import com.zgdr.schoolhelp.exception.AccountException;
 import com.zgdr.schoolhelp.repository.UserRepository;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -16,21 +17,25 @@ import java.util.Date;
 import static org.junit.Assert.*;
 
 /**
- * UserServiceTest
- * TODO
+ * AccountServiceTest
+ * 测试AccountService
  *
  * @author hengyumo
- * @since 2019/4/17
+ * @since 2019/4/27
  * @version 1.0
  */
-@Ignore // 忽略测试
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试
-public class UserServiceTest {
+public class AccountServiceTest {
+
 
     @Autowired
-    private UserService userService;
+    private AccountService accountService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private static Logger logger = LoggerFactory.getLogger(UserServiceTest.class);
 
@@ -38,41 +43,38 @@ public class UserServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        user = new User("name", "12345678901", "123456", true, new Date(),
+        user = new User("name", "12345678901", "12345678901", true, new Date(),
                 100, 10, 5, true, true,
                 true, new Date(), new Date()
         );
+        userRepository.save(user);
     }
 
     @After
     public void tearDown() throws Exception {
     }
 
-    @Test
-    public void Test1CreateUser() {
-        userService.createUser(user);
-        Assert.assertEquals((Integer)1, user.getId());
-        logger.info("id = {}", user.getId());
+    @Test(expected = AccountException.class) // 期望抛出异常
+    public void test1Register() {
+        // 用户已存在
+        accountService.register("12345678901", "12345678901");
     }
 
-    @Test
-    public void Test2UpdateUser() {
-        user.setName("name2");
-        userService.updateUser(user);
-        Assert.assertEquals("name2", user.getName());
-        logger.info(user.toString());
-        logger.info("id = {}", user.getId());
+    @Test(expected = AccountException.class)
+    public void test2Login() {
+        // 用户不存在
+        accountService.login("12345678902", "12345678901");
     }
 
-    @Test
-    public void Test3ReadUser() {
-        logger.info(user.toString());
-        Assert.assertTrue(userService.readUserById(1).isOnline());
+    @Test(expected = AccountException.class)
+    public void test3Login() {
+        // 密码错误
+        accountService.login("12345678901", "1234567890");
     }
 
-    @Test
-    public void Test4DeleteUserById() {
-        logger.info(user.toString());
-        userService.deleteUserById(1);
+    @Test(expected = AccountException.class)
+    public void test4ChangePassword() {
+        // 旧密码错误
+        accountService.changePassword(user.getId(), "1234567890", "12345678901");
     }
 }
