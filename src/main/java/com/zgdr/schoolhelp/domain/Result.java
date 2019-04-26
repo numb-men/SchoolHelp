@@ -3,6 +3,8 @@ package com.zgdr.schoolhelp.domain;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.ResultEnum;
 
+import java.util.List;
+
 /**
  * 一个封装好的响应Result
  *
@@ -18,6 +20,12 @@ public class Result<T> {
     public Result(ResultEnum resultEnum, T data) {
         this.msg = resultEnum.getMsg();
         this.code = resultEnum.getCode();
+        this.data = data;
+    }
+
+    public Result(Integer code, String msg, T data){
+        this.code = code;
+        this.msg = msg;
         this.data = data;
     }
 
@@ -43,5 +51,9 @@ public class Result<T> {
 
     public static Result error(ResultEnum resultEnum){
         return new Result<Object>(resultEnum, null);
+    }
+
+    public static Result error(Integer code, String msg){
+        return new Result<Object>(code, msg, null);
     }
 }

@@ -11,4 +11,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 2019/4/17
  */
 public interface UserRepository extends JpaRepository<User, Integer> {
+    public User findByPhoneIn(String phone);
 }

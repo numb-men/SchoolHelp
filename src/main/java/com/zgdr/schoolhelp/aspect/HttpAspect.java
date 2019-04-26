@@ -45,10 +45,9 @@ public class HttpAspect {
      *
      * @param joinPoint 切入点
      */
-    @Before("execution(public * com.zgdr.schoolhelp.controller.*.*(..))")
+    @Before("log()")
     public void doBefore(JoinPoint joinPoint) {
-        System.out.println("Not allow!");
-        logger.info("Not allow!"); //使用spring自带的日志管理
+        logger.info("Before"); //使用spring自带的日志管理
 
         //记录请求的内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -80,8 +79,8 @@ public class HttpAspect {
      */
     @After("log()")
     public void doAfter() {
-        System.out.println("Do after");
-        logger.info("Do after");
+        System.out.println("After");
+        logger.info("After");
     }
 
 

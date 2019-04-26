@@ -24,10 +24,10 @@ public class User {
 
     /* 手机号 */
     @Column(length = 11)
-    private String mobile;
+    private String phone;
 
-    /* 密码 使用sh1加密，320bit 40字节*/
-    @Column(length = 40)
+    /* 密码 */
+    @Column(length = 255)
     private String password;
 
     /* 性别 */
@@ -76,12 +76,12 @@ public class User {
         this.name = name;
     }
 
-    public String getMobile() {
-        return mobile;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setMobile(String mobile) {
-        this.mobile = mobile;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getPassword() {
@@ -177,7 +177,7 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", mobile='" + mobile + '\'' +
+                ", phone='" + phone + '\'' +
                 ", password='" + password + '\'' +
                 ", sex=" + sex +
                 ", birthdate=" + birthdate +
@@ -192,11 +192,11 @@ public class User {
                 '}';
     }
 
-    public User(String name, String mobile, String password, boolean sex, Date birthdate, Integer points,
+    public User(String name, String phone, String password, boolean sex, Date birthdate, Integer points,
                 Integer collectPostNum, Integer fallowNum, boolean role, boolean isCertified,
                 boolean isOnline, Date registerTime, Date lastTime) {
         this.name = name;
-        this.mobile = mobile;
+        this.phone = phone;
         this.password = password;
         this.sex = sex;
         this.birthdate = birthdate;
