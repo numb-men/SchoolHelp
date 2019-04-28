@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * InterceptorConfig
- * 配置处理token
+ * 配置处理token、NotNull
  *
  * @author hengyumo
  * @version 1.0
