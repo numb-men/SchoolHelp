@@ -87,7 +87,7 @@ public class ExceptionHandle {
             return Result.error(-600, methodArgumentTypeMismatchException.getMessage());
         }
         else {
-            logger.error("【系统异常】", e);
+            logger.error("!!!系统异常!!!", e);
             return new Result<Object>(GlobalResultEnum.UNKNOW_ERROR, null);
         }
     }
