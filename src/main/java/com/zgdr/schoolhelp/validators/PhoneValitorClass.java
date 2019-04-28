@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 /**
  * PhoneValitorClass
- * TODO
+ * 实现手机号验证注解
  *
  * @author hengyumo
  * @version 1.0

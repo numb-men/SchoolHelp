@@ -3,8 +3,7 @@ package com.zgdr.schoolhelp.exception;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 
 /**
- * GlobalExceptionParent
- * TODO
+ * GlobalException
  *
  * @author hengyumo
  * @version 1.0

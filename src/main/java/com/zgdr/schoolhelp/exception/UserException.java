@@ -3,8 +3,7 @@ package com.zgdr.schoolhelp.exception;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
 
 /**
- * UserExceptionParent
- * TODO
+ * UserException
  *
  * @author hengyumo
  * @version 1.0

@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  * @since 2019/4/27
  * @version 1.0
  */
-@Ignore
+//@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试
@@ -47,11 +47,13 @@ public class AccountServiceTest {
                 100, 10, 5, true, true,
                 true, new Date(), new Date()
         );
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
+        logger.info(user.toString());
     }
 
     @After
     public void tearDown() throws Exception {
+        userRepository.delete(user);
     }
 
     @Test(expected = AccountException.class) // 期望抛出异常
@@ -62,6 +64,7 @@ public class AccountServiceTest {
 
     @Test(expected = AccountException.class)
     public void test2Login() {
+        logger.info("userId: " + user.getId());
         // 用户不存在
         accountService.login("12345678902", "12345678901");
     }

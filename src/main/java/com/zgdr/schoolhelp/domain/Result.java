@@ -3,8 +3,6 @@ package com.zgdr.schoolhelp.domain;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.ResultEnum;
 
-import java.util.List;
-
 /**
  * 一个封装好的响应Result
  *

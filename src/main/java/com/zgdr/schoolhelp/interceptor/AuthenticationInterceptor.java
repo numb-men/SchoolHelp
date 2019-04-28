@@ -5,11 +5,14 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.zgdr.schoolhelp.annotation.AdminLoginToken;
 import com.zgdr.schoolhelp.annotation.PassToken;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.User;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
+import com.zgdr.schoolhelp.enums.UserResultEnum;
 import com.zgdr.schoolhelp.exception.GlobalException;
+import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.UserRepository;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -33,8 +36,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     UserRepository userRepository;
 
     @Override
-    public boolean preHandle( HttpServletRequest httpServletRequest,
-                              HttpServletResponse httpServletResponse,
+    public boolean preHandle( HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                               Object object) throws Exception {
 
         // 从 http 请求头中取出 token
@@ -62,49 +64,69 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
             // 执行认证
             if (userLoginToken.required()) {
-                if (token == null) {
-                    throw new GlobalException(GlobalResultEnum.NOT_LOGIN);
-                }
-
-                // 获取 token 中的 user id
-                Integer userId;
-                try {
-                    userId = Integer.valueOf(JWT.decode(token).getAudience().get(0));
-                } catch (JWTDecodeException j) {
-                    throw new RuntimeException("check token failed");
-                }
-
-                // 用户不存在
-                User user = userRepository.findById(userId).orElse(null);
-                if (user == null) {
-                    throw new GlobalException(GlobalResultEnum.USER_NOT_FIND);
-                }
-
+                User user = getUserFromToken(token);
                 // 验证 token
-                JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
-                try {
-                    jwtVerifier.verify(token);
-                } catch (JWTVerificationException e) {
-                    throw new GlobalException(GlobalResultEnum.TOKEN_CHECK_FAILED);
-                }
+                return verifyToken(token, user);
+            }
+        }
 
-                // 校验成功
-                return true;
+        // 检查有没有需要登录的注解@UserLoginToken
+        if (method.isAnnotationPresent(AdminLoginToken.class)) {
+            AdminLoginToken adminLoginToken = method.getAnnotation(AdminLoginToken.class);
+
+            // 执行认证
+            if (adminLoginToken.required()) {
+                User user = getUserFromToken(token);
+                if (! user.getRole()){
+                    // 没有管理员权限
+                    throw new UserException((UserResultEnum.NO_POWER));
+                }
+                // 验证 token
+                return verifyToken(token, user);
             }
         }
         return true;
     }
 
     @Override
-    public void postHandle(HttpServletRequest httpServletRequest,
-                           HttpServletResponse httpServletResponse,
+    public void postHandle(HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
                            Object o, ModelAndView modelAndView) throws Exception {
 
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest httpServletRequest,
-                                HttpServletResponse httpServletResponse,
+    public void afterCompletion(HttpServletRequest httpServletRequest,HttpServletResponse httpServletResponse,
                                 Object o, Exception e) throws Exception {
+    }
+
+    private User getUserFromToken(String token){
+        if (token == null) {
+            throw new GlobalException(GlobalResultEnum.NOT_LOGIN);
+        }
+
+        // 获取 token 中的 user id
+        Integer userId;
+        try {
+            userId = Integer.valueOf(JWT.decode(token).getAudience().get(0));
+        } catch (JWTDecodeException j) {
+            throw new RuntimeException("check token failed");
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new GlobalException(GlobalResultEnum.USER_NOT_FIND);
+        }
+        return user;
+    }
+
+    private boolean verifyToken(String token, User user){
+        // 验证 token
+        JWTVerifier jwtVerifier = JWT.require(Algorithm.HMAC256(user.getPassword())).build();
+        try {
+            jwtVerifier.verify(token);
+        } catch (JWTVerificationException e) {
+            throw new GlobalException(GlobalResultEnum.TOKEN_CHECK_FAILED);
+        }
+        return true;
     }
 }

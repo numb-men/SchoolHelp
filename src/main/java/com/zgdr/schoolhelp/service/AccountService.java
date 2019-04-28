@@ -1,14 +1,17 @@
 package com.zgdr.schoolhelp.service;
 
-import com.alibaba.fastjson.JSONObject;
+import ch.qos.logback.core.util.StringCollectionUtil;
 import com.zgdr.schoolhelp.domain.User;
 import com.zgdr.schoolhelp.enums.AccountResultEnum;
 import com.zgdr.schoolhelp.exception.AccountException;
 import com.zgdr.schoolhelp.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zgdr.schoolhelp.utils.StringUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
+import java.util.Date;
 
 /**
  * AccountService
@@ -36,13 +39,15 @@ public class AccountService {
      * @param password 密码，加密过
      * @return token
      */
+    @Transactional
     public String register(String phone, String password){
         User user = userRepository.findByPhoneIn(phone);
         if (user == null) {
             user = new User();
+            user.setName("用户" + StringUtil.getRandomString(10));
             user.setPhone(phone);
             user.setPassword(password);
-            userRepository.save(user);
+            userRepository.saveAndFlush(user);
         } else {
             throw new AccountException(AccountResultEnum.HAS_REGISTERED);
         }
@@ -59,9 +64,15 @@ public class AccountService {
      * @param password 密码，加密过
      * @return token
      */
+    @Transactional
     public String login(String phone, String password){
         User user = userRepository.findByPhoneIn(phone);
         checkUser(user, password);
+
+        // 设置在线
+        user.setOnline(true);
+        user.setLastTime(new Date());
+        userRepository.saveAndFlush(user);
 
         return tokenService.getToken(user);
     }
@@ -75,11 +86,12 @@ public class AccountService {
      * @param newPassword 新密码
      * @return 新token
      */
+    @Transactional
     public String changePassword(Integer userId, String oldPassword, String newPassword){
         User user = userRepository.findById(userId).orElse(null);
         checkUser(user, oldPassword);
         user.setPassword(newPassword);
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
 
         return tokenService.getToken(user);
     }

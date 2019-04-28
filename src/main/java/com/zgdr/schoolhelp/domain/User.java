@@ -1,17 +1,21 @@
 package com.zgdr.schoolhelp.domain;
 
+
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 /**
  * user表映射对象
  *
  * @author hengyumo
- * @version 1.0
+ * @version 1.5
  * @since 2019/4/17
  */
 @Entity(name = "user")
-public class User {
+public class User{
 
     /* 用户ID */
     @Id
@@ -19,46 +23,52 @@ public class User {
     private Integer id;
 
     /* 用户名 */
+    @NotBlank(message = "用户名不能为空")
+    @Length(max = 30, message = "用户名过长")
     @Column(length = 30)
     private String name;
 
     /* 手机号 */
-    @Column(length = 11)
+    @NotBlank(message = "手机号不能为空")
+    @Length(min = 11, max = 11, message = "手机长度应为11")
+    @Column(length = 11, unique = true)
     private String phone;
 
     /* 密码 */
+    @NotBlank(message = "密码不能为空")
+    @Length(max = 255, min = 8, message = "密码的长度应在8-255之间")
     @Column(length = 255)
     private String password;
 
     /* 性别 */
-    private boolean sex;
+    private Boolean sex = true;
     
     /* 生日 */
-    private Date birthdate;
-    
+    private Date birthdate = new Date();
+
     /* 积分 */
-    private Integer points;
+    private Integer points = 0;
     
     /* 收藏帖子个数 */
-    private Integer collectPostNum;
+    private Integer collectPostNum = 0;
 
     /* 关注个数 */
-    private Integer fallowNum;
+    private Integer fallowNum = 0;
 
     /* 角色 普通用户/管理员 */
-    private boolean role;
+    private Boolean role = false;
 
     /* 是否学生认证 */
-    private boolean isCertified;
+    private Boolean isCertified = false;
     
     /* 是否在线 */
-    private boolean isOnline;
+    private Boolean isOnline = true;
 
     /* 注册时间 */
-    private Date registerTime;
+    private Date registerTime = new Date();
 
     /* 最近登录时间 */
-    private Date lastTime;
+    private Date lastTime = new Date();
 
     public Integer getId() {
         return id;
@@ -172,6 +182,33 @@ public class User {
         this.lastTime = lastTime;
     }
 
+    public User(@NotBlank(message = "用户名不能为空")
+                @Length(max = 30, message = "用户名过长") String name,
+                @NotBlank(message = "手机号不能为空")
+                @Length(min = 11, max = 11, message = "手机长度应为11") String phone,
+                @NotBlank(message = "密码不能为空")
+                @Length(max = 255, min = 8, message = "密码的长度应在8-255之间") String password,
+                boolean sex, Date birthdate, Integer points, Integer collectPostNum, Integer fallowNum,
+                boolean role, boolean isCertified, boolean isOnline, Date registerTime, Date lastTime) {
+        this.name = name;
+        this.phone = phone;
+        this.password = password;
+        this.sex = sex;
+        this.birthdate = birthdate;
+        this.points = points;
+        this.collectPostNum = collectPostNum;
+        this.fallowNum = fallowNum;
+        this.role = role;
+        this.isCertified = isCertified;
+        this.isOnline = isOnline;
+        this.registerTime = registerTime;
+        this.lastTime = lastTime;
+    }
+
+    public User(){
+    }
+
+
     @Override
     public String toString() {
         return "User{" +
@@ -191,24 +228,4 @@ public class User {
                 ", lastTime=" + lastTime +
                 '}';
     }
-
-    public User(String name, String phone, String password, boolean sex, Date birthdate, Integer points,
-                Integer collectPostNum, Integer fallowNum, boolean role, boolean isCertified,
-                boolean isOnline, Date registerTime, Date lastTime) {
-        this.name = name;
-        this.phone = phone;
-        this.password = password;
-        this.sex = sex;
-        this.birthdate = birthdate;
-        this.points = points;
-        this.collectPostNum = collectPostNum;
-        this.fallowNum = fallowNum;
-        this.role = role;
-        this.isCertified = isCertified;
-        this.isOnline = isOnline;
-        this.registerTime = registerTime;
-        this.lastTime = lastTime;
-    }
-
-    public User() {}
 }
