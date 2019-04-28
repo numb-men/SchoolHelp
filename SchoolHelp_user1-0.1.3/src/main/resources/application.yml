@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: dev
+
+  datasource:
+    url: jdbc:mysql://134.175.16.143:3306/dbPost?useSSL=false&characterEncoding=utf8
+    username: schoolhelp6!
+    password: Zgdr@Very6!
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
