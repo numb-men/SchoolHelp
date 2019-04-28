@@ -218,7 +218,7 @@ public class UserService {
         if (postRepository.findByPostIdIn(postId) == null){
             throw new UserException(UserResultEnum.POST_NOT_FOUND);
         }
-        if (collectRepository.findByPostIdAndUserIdIn(userId, postId) != null){
+        if (collectRepository.findByPostIdAndUserIdIn(postId, userId) != null){
             throw new UserException(UserResultEnum.REPEAT_COLLECT);
         }
         Collect collect = new Collect();

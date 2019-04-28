@@ -60,6 +60,7 @@ public class UserController {
      */
     @UserLoginToken
     @DeleteMapping(value = {"/", ""})
+    @NotNull(value = "userIdDeleted")
     public Result deleteUser(@RequestParam(name = "userIdDeleted") Integer userIdDeleted,
                              HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
@@ -150,6 +151,7 @@ public class UserController {
      */
     @UserLoginToken
     @PostMapping(value = "/collect")
+    @NotNull(value = "postId")
     public Result collectPost(@RequestParam Integer postId, HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.collectPost(userId, postId));
@@ -181,6 +183,7 @@ public class UserController {
      */
     @UserLoginToken
     @DeleteMapping(value = "/collect")
+    @NotNull(value = "collectIdDeleted")
     public Result deleteUserCollect(@RequestParam(name = "collectId") Integer collectIdDeleted,
                                     HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);

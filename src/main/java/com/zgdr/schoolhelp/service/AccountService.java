@@ -41,6 +41,9 @@ public class AccountService {
      */
     @Transactional
     public String register(String phone, String password){
+        if (! StringUtil.isGoodPasseord(password)){
+            throw new AccountException(AccountResultEnum.NOT_GOOD_PASSWORD);
+        }
         User user = userRepository.findByPhoneIn(phone);
         if (user == null) {
             user = new User();
@@ -90,6 +93,9 @@ public class AccountService {
     public String changePassword(Integer userId, String oldPassword, String newPassword){
         User user = userRepository.findById(userId).orElse(null);
         checkUser(user, oldPassword);
+        if (oldPassword.equals(newPassword)){
+            throw new AccountException(AccountResultEnum.PASSWORD_EQUAL);
+        }
         user.setPassword(newPassword);
         userRepository.saveAndFlush(user);
 

@@ -43,11 +43,13 @@ public class NotNullInterceptor implements HandlerInterceptor {
             NotNull notNullAnnotation = method.getAnnotation(NotNull.class);
             String value = notNullAnnotation.value();
             String[] params = value.split(",");
+
+
             List<String> errorMessages = new ArrayList<>();
             for (String param : params){
-                Object object = httpServletRequest.getParameter(param);
-                if (object == null){
+                if (httpServletRequest.getParameter(param) == ""){
                     errorMessages.add(param + "不能为空");
+                    System.out.println(param);
                 }
             }
             if (errorMessages.size() > 0){

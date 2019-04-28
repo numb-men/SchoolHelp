@@ -10,7 +10,9 @@ package com.zgdr.schoolhelp.enums;
 public enum AccountResultEnum implements ResultEnum{
     HAS_REGISTERED(-1, "该手机号已注册"),
     NOT_USER(-2, "用户不存在"),
-    PASSWORD_ERROR(-3, "密码错误")
+    PASSWORD_ERROR(-3, "密码错误"),
+    NOT_GOOD_PASSWORD(-4, "密码应由8-255位数字和字母组成"),
+    PASSWORD_EQUAL(-5, "新密码和旧密码相同，不改变")
     ;
     private Integer code;
     private String msg;

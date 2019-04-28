@@ -14,6 +14,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 
 import javax.validation.ConstraintViolation;
@@ -78,6 +79,12 @@ public class ExceptionHandle {
             HttpRequestMethodNotSupportedException httpRequestMethodNotSupportedException
                     = (HttpRequestMethodNotSupportedException)e;
             return Result.error(-500, httpRequestMethodNotSupportedException.getMessage());
+        }
+        else if (e instanceof MethodArgumentTypeMismatchException){
+            // 请求参数格式不正确
+            MethodArgumentTypeMismatchException methodArgumentTypeMismatchException
+                    = (MethodArgumentTypeMismatchException)e;
+            return Result.error(-600, methodArgumentTypeMismatchException.getMessage());
         }
         else {
             logger.error("【系统异常】", e);
