@@ -4,6 +4,7 @@ import com.zgdr.schoolhelp.domain.Approval;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -26,4 +27,25 @@ public interface ApprovalRepository extends JpaRepository<Approval, Integer>{
      */
     @Query(value = "SELECT user_id FROM approval WHERE post_id=?1", nativeQuery = true)
     public Set<Integer> getListApprovalUser(Integer id);
+
+
+    /**
+     * 删除点赞通过贴子id
+     * @author fishkk
+     * @since 2019/4/27
+     *
+     * @param  postId 贴子id
+     * @return
+     */
+
+    public void deleteByPostId(Integer postId);
+
+    /**
+     * 通过用户ID查询点赞表
+     *
+     * @author 星夜、痕
+     * @version 1.0
+     * @since 2019/4/28
+     **/
+    List<Approval> findAllByUserId(Integer userId);
 }

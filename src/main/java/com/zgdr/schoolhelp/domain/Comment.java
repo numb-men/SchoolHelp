@@ -28,6 +28,9 @@ public class Comment {
     /* 被评论贴子的ID */
     private Integer postId;
 
+    /* 评论用户名 */
+    private String commentUserName;
+
     /* 评论内容 */
     @NotBlank
     private String commentContent;
@@ -38,11 +41,21 @@ public class Comment {
     public Comment() {
     }
 
-    public Comment(Integer userId, Integer postId, String commentContent, Date commentTime) {
+    public Comment(Integer userId, Integer postId, String commentUserName,
+                   @NotBlank String commentContent, Date commentTime) {
         this.userId = userId;
         this.postId = postId;
+        this.commentUserName = commentUserName;
         this.commentContent = commentContent;
         this.commentTime = commentTime;
+    }
+
+    public String getCommentUserName() {
+        return commentUserName;
+    }
+
+    public void setCommentUserName(String commentUserName) {
+        this.commentUserName = commentUserName;
     }
 
     public Integer getCommentId() {
@@ -91,6 +104,7 @@ public class Comment {
                 "commentId=" + commentId +
                 ", userId=" + userId +
                 ", postId=" + postId +
+                ", commentUserName='" + commentUserName + '\'' +
                 ", commentContent='" + commentContent + '\'' +
                 ", commentTime=" + commentTime +
                 '}';

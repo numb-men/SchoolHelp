@@ -1,58 +1,76 @@
 package com.zgdr.schoolhelp.domain;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /**
- *post表映射对象
+ * post表映射对象
  *
  * @author fishkk
  * @version 1.0
- * @since 2019/4/23
+ * @since 2019/4/27
  */
 @Entity(name = "post")
 public class Post {
 
-    /* 贴子Id */
+    /* 贴子ID */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) //使用默认生成方式（MySQL）：自增
+
     private Integer postId;
 
-    /* 发帖者Id */
-    private  Integer userId;
+    /* 发帖者ID */
+    private Integer userId;
 
-    /* 帮助者Id */
-    private Integer helpedUserId;
+    /* 帮助者ID*/
+    private Integer helpUserId;
 
     /* 标题 */
-    private  String  title;
+    @NotBlank
+    private String  title;
 
     /* 贴子内容*/
-    private  String  content;
+   @NotBlank
+    private String content;
 
     /* 悬赏积分 */
-    private  Integer points;
+    @NotNull
+    private Integer points ;
+
+    /* 用户名*/
+    private String userName;
 
     /* 浏览量*/
-    private  Integer viewNum;
+    private Integer viewNum;
 
     /* 点赞数 */
-    private  Integer approvalNum;
+    private Integer approvalNum;
 
     /* 评论数 */
-    private  Integer commentNum;
+    private Integer commentNum;
 
     /* 举报数*/
-    private  Integer reportNum;
+    private Integer reportNum;
 
     /* 贴子类型*/
-    private  String  postType;
+    private String postType;
 
     /* 发帖时间 */
-    private  Date    issueTime;
+    private Date issueTime ;
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public Integer getPostId() {
         return postId;
@@ -68,14 +86,6 @@ public class Post {
 
     public void setUserId(Integer userId) {
         this.userId = userId;
-    }
-
-    public Integer getHelpedUserId() {
-        return helpedUserId;
-    }
-
-    public void setHelpedUserId(Integer helpedUserId) {
-        this.helpedUserId = helpedUserId;
     }
 
     public String getTitle() {
@@ -150,14 +160,27 @@ public class Post {
         this.issueTime = issueTime;
     }
 
-    public Post(Integer userId, Integer helpedUserId, String title, String content, Integer points,
-                Integer viewNum, Integer approvalNum, Integer commentNum, Integer reportNum,
-                String postType, Date issueTime) {
+    public Integer getHelpUserId() {
+        return helpUserId;
+    }
+
+    public void setHelpUserId(Integer helpUserId) {
+        this.helpUserId = helpUserId;
+    }
+
+    public Post() {
+    }
+
+    public Post(Integer userId, Integer helpUserId,
+                @NotBlank String title, @NotBlank String content, @NotNull Integer points,
+                String userName, Integer viewNum, Integer approvalNum, Integer commentNum,
+                Integer reportNum, String postType, Date issueTime) {
         this.userId = userId;
-        this.helpedUserId = helpedUserId;
+        this.helpUserId = helpUserId;
         this.title = title;
         this.content = content;
         this.points = points;
+        this.userName = userName;
         this.viewNum = viewNum;
         this.approvalNum = approvalNum;
         this.commentNum = commentNum;
@@ -166,7 +189,22 @@ public class Post {
         this.issueTime = issueTime;
     }
 
-    public Post() {
+    @Override
+    public String toString() {
+        return "Post{" +
+                "postId=" + postId +
+                ", userId=" + userId +
+                ", helpUserId=" + helpUserId +
+                ", title='" + title + '\'' +
+                ", content='" + content + '\'' +
+                ", points=" + points +
+                ", userName='" + userName + '\'' +
+                ", viewNum=" + viewNum +
+                ", approvalNum=" + approvalNum +
+                ", commentNum=" + commentNum +
+                ", reportNum=" + reportNum +
+                ", postType='" + postType + '\'' +
+                ", issueTime=" + issueTime +
+                '}';
     }
-
 }

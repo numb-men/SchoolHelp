@@ -15,9 +15,12 @@ import java.util.Date;
 @Entity(name = "student")
 public class Student {
 
-    /*用户ID*/
+    /*学生表号*/
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)//使用默认生成方式（MySQL）：自增
+    private Integer StudentId;
+
+    /*用户ID*/
     private Integer userId;
 
     /*学号*/

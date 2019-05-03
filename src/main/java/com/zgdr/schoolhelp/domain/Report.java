@@ -1,19 +1,20 @@
 package com.zgdr.schoolhelp.domain;
 
+import org.hibernate.validator.constraints.NotBlank;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.Size;
 import java.util.Date;
+
 /**
- * Report
- * 举报表映射对象
+ * report表映射对象
  *
  * @author fishkk
- * @since 描述
+ * @version 1.0
+ * @since 2019/4/27
  */
-
 @Entity(name = "report")
 public class Report {
     /* 举报ID */
@@ -22,25 +23,17 @@ public class Report {
     private Integer reportId;
 
     /* 举报者用户ID */
-    private Integer  userId;
+    private Integer userId;
 
     /* 被举报贴子ID */
     private Integer postId;
 
     /* 举报描述 */
-    @Size(min=1,max=255,message = "输入不能为空")
+    @NotBlank
     private String reportDes;
 
     /* 举报日期*/
     private Date reportTime;
-
-    public Report(Integer userId, Integer postId,
-                  @Size(min = 4, max = 230, message = "输入不能为空") String report_des, Date reportTime) {
-        this.userId = userId;
-        this.postId = postId;
-        this.reportDes = report_des;
-        this.reportTime = reportTime;
-    }
 
     public Report() {
     }
@@ -73,8 +66,8 @@ public class Report {
         return reportDes;
     }
 
-    public void setReportDes(String report_des) {
-        this.reportDes = report_des;
+    public void setReportDes(String reportDes) {
+        this.reportDes = reportDes;
     }
 
     public Date getReportTime() {

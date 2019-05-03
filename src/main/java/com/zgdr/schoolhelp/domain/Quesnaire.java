@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 映射问卷表
@@ -34,7 +35,7 @@ public class Quesnaire {
 
     /* 问卷采集份数 */
     @Max(value = 100, message = "最多只能采集100份")
-    @Min(value = 15, message = "采集份数不得少于10份")
+    @Min(value = 15, message = "采集份数不得少于15份")
     @NotNull
     private Integer limitNum;
 
@@ -45,22 +46,23 @@ public class Quesnaire {
     private Integer postPoint;
 
     /* 发布时间 */
+    @Past
     private Date publishTime;
 
     /* 截止时间 */
- //  @Future
+    @Future
     private Date finishTime;
 
     /* 一对多的关联，一个问卷有多个问题  */
-    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.LAZY)
+    @OneToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
     @JoinColumn(name = "quesnaire_id")
-    private List<com.zgdr.schoolhelp.domain.Question> questions;
+    private List<Question> questions;
 
-    public List<com.zgdr.schoolhelp.domain.Question> getQuestions() {
+    public List<Question> getQuestions() {
         return questions;
     }
 
-    public void setQuestions(List<com.zgdr.schoolhelp.domain.Question> questions) {
+    public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
 
@@ -131,7 +133,8 @@ public class Quesnaire {
                      @Max(value = 100, message = "最多只能采集100份")
                      @Min(value = 15, message = "采集份数不得少于15份")
                      @NotNull Integer limitNum, Integer finishNum,
-                     Integer postPoint, Date publishTime,
+                     Integer postPoint,
+                     @Past Date publishTime,
                      @Future Date finishTime) {
         this.userId = userId;
         this.quesnaireDescrible = quesnaireDescrible;

@@ -1,12 +1,9 @@
 package com.zgdr.schoolhelp.service;
 
-import com.zgdr.schoolhelp.domain.Post;
 import com.zgdr.schoolhelp.domain.Search;
 import com.zgdr.schoolhelp.domain.Setting;
-import com.zgdr.schoolhelp.domain.User;
-import com.zgdr.schoolhelp.enums.UserResultEnum;
-import com.zgdr.schoolhelp.repository.PostRepository;
-import com.zgdr.schoolhelp.repository.SearchRepository;
+import com.zgdr.schoolhelp.domain.*;
+import com.zgdr.schoolhelp.repository.*;
 import com.zgdr.schoolhelp.repository.UserRepository;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -27,7 +24,7 @@ import java.util.List;
  * @since 2019/4/17
  * @version 1.0
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试
@@ -55,7 +52,7 @@ public class UserServiceTest {
     }
 
     private Post newPost(){
-        return new Post(1, 2, "帖子标题", "帖子内容", 100, 200,
+        return new Post(1, 2, "帖子标题", "帖子内容", 12,"ads", 200,
                 10, 3, 1, "求职", new Date());
     }
 
@@ -114,7 +111,7 @@ public class UserServiceTest {
         userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
-        post.setHelpedUserId(user2.getId());
+        post.setHelpUserId(user2.getId());
         postRepository.save(post);
         // 是否正确找出来helped的帖子id
         Assert.assertEquals(post.getPostId(), userService.getHelpedPosts(user2.getId()).get(0));
@@ -176,7 +173,7 @@ public class UserServiceTest {
         userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
-        post.setHelpedUserId(user2.getId());
+        post.setHelpUserId(user2.getId());
         postRepository.save(post);
         userService.collectPost(user1.getId(), post.getPostId());
         Integer postIdFound = userService.getUserCollects(user1.getId()).get(0);
@@ -192,7 +189,7 @@ public class UserServiceTest {
         userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
-        post.setHelpedUserId(user2.getId());
+        post.setHelpUserId(user2.getId());
         postRepository.save(post);
         userService.collectPost(user2.getId(), post.getPostId());
         Integer postIdFound = userService.getUserCollects(user2.getId()).get(0);
@@ -208,7 +205,7 @@ public class UserServiceTest {
         userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
-        post.setHelpedUserId(user2.getId());
+        post.setHelpUserId(user2.getId());
         postRepository.save(post);
         Integer collectId = userService.collectPost(user2.getId(), post.getPostId());
         userService.deleteUserCollect(user2.getId(), collectId);

@@ -2,6 +2,9 @@ package com.zgdr.schoolhelp.repository;
 
 import com.zgdr.schoolhelp.domain.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
 /**
  * StudentRepository
  *
@@ -10,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 2019/4/28
  **/
 public interface StudentRepository extends JpaRepository<Student,Integer> {
-
+    List<Student> findAllByUserId(Integer userId);
 }

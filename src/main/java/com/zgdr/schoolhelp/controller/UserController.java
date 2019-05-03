@@ -5,10 +5,16 @@ import com.zgdr.schoolhelp.annotation.NotNull;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.Setting;
+import com.zgdr.schoolhelp.domain.User;
+import com.zgdr.schoolhelp.domain.UserFind;
+import com.zgdr.schoolhelp.enums.PostResultEnum;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
+import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.exception.UserException;
+import com.zgdr.schoolhelp.repository.*;
 import com.zgdr.schoolhelp.service.UserService;
 import com.zgdr.schoolhelp.utils.TokenUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +39,19 @@ public class UserController {
 
     @Resource
     private UserService userService;
+
+    @Autowired
+    private AttentionRepository attentionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private MessgaeRepository messgaeRepository;
+
+    @Autowired
+    StudentRepository studentRepository;
+
 
     /**
      * 获取用户帮助成功的帖子列表
@@ -220,4 +239,272 @@ public class UserController {
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.hideUserSearchHistory(userId));
     }
+
+    /**
+     * 获取当前用户的所有帖子信息
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @GetMapping(value = "/post")
+    public Result getUserPosts(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.getUserPosts(userId));
+    }
+
+    /**
+     * 获取当前用户的点赞过的所有帖子信息
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @GetMapping(value = "/approval/post")
+    public Result getUserApprovalPosts (HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.getUserApprovalPosts(userId));
+    }
+
+    /**
+     * 获取当前用户评论过的帖子
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @GetMapping(value = "/comment/post")
+    public Result getUserCommentPosts (HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.getUserCommentPosts(userId));
+    }
+
+    /**
+     * 获取当前用户举报过的帖子
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @GetMapping(value = "/report/post")
+    public Result getUerReportPosts(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return  Result.success(userService.getUserReportPosts(userId));
+    }
+
+    /**
+     * 获取对应用户的帖子列表
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @return com.zgdr.schoolehelp.domain.Post
+     **/
+    @GetMapping(value = "/post/{userId}")
+    public Result getPosts(@PathVariable("userId") Integer userId){
+        return Result.success(userService.getPosts(userId));
+    }
+
+
+    /**
+     * 获取当前用户的关注列表
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @GetMapping(value = "/attention")
+    public Result getUserAttention(HttpServletRequest httpServletRequest){
+        Integer attentionUserId  = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(attentionRepository.findAllByAttentionUserId(attentionUserId));
+    }
+
+    /**
+     * 当前用户关注对应的用户
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param beAttentionUserId 被关注者id
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @PostMapping(value = "/attention")
+    public Result attentionUser(@RequestParam Integer beAttentionUserId,HttpServletRequest httpServletRequest){
+        Integer attentionUserId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.attentionUser(attentionUserId,beAttentionUserId));
+    }
+
+    /**
+     * 当前用户取消关注对应的用户
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @param beAttentionUserId 将取消的关注者id
+     * @return  null
+     */
+    @UserLoginToken
+    @DeleteMapping(value = "/attention")
+    public Result deleteUserAttention(@RequestParam(name = "beAttentionUserId") Integer beAttentionUserId,
+                                      HttpServletRequest httpServletRequest){
+        Integer attentionUserId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.deleteUserAttention(attentionUserId,beAttentionUserId));
+    }
+
+    /**
+     * 获取当前用户的所有信息
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @GetMapping(value = "")
+    public Result getUserAll(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userRepository.findById(userId));
+    }
+
+    /**
+     * 获取对应用户的个人信息（非隐私部分）
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+
+    @GetMapping(value = "/{userId}")
+    public Result getUser(@PathVariable("userId") Integer userId){
+        User user = new User();
+        user  = userRepository.findById(userId).orElse(null);
+        UserFind userFind = new UserFind();
+        userFind.setId(user.getId());
+        userFind.setName(user.getName());
+        userFind.setPhone(user.getPhone());
+        userFind.setPassword(user.getPassword());
+        userFind.setSex(user.getSex());
+        userFind.setBirthdate(user.getBirthdate());
+        userFind.setPoints(user.getPoints());
+        userFind.setCollectPostNum(user.getCollectPostNum());
+        userFind.setFallowNum(user.getFallowNum());
+        userFind.setRole(user.getRole());
+        userFind.setCertified(user.isCertified());
+        userFind.setOnline(user.isOnline());
+        userFind.setRegisterTime(user.getRegisterTime());
+        userFind.setLastTime(user.getLastTime());
+
+        return Result.success(userFind);
+
+    }
+
+
+    /**
+     * 更新当前用户的资料
+     * @author 星夜、痕
+     * @since 2019/4/29
+     * @param httpServletRequest http请求
+     * @return null
+     */
+    @UserLoginToken
+    @PutMapping(value = "")
+    public Result updateUser (@Valid User user, HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.updateUser(userId,user));
+    }
+
+    /**
+     * 查看用户收到的所有信息
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @GetMapping(value = "/message")
+    public Result getUserMessage(HttpServletRequest httpServletRequest){
+        Integer accet = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(messgaeRepository.findByAccet(accet));
+    }
+
+    /**
+     * 新建给对应用户的新消息
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @param messageContent 消息内容
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @PostMapping(value = "/message")
+    public Result newMessage(@RequestParam String messageContent,
+                             @RequestParam Integer accept,
+                             HttpServletRequest httpServletRequest){
+        Integer send  = TokenUtil.getUserIdByRequest(httpServletRequest);
+        if (messageContent != null && messageContent.equals("")){
+            throw new UserException(UserResultEnum.MESSAGE_CANT_NULL);
+        }
+        return Result.success(userService.newMessage(accept,messageContent,send));
+    }
+
+    /**
+     * 举报对应帖子
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @param postId 被举报帖子ID
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    @UserLoginToken
+    @PostMapping(value = "/user/report")
+    public Result reportPost(@RequestParam Integer postId,HttpServletRequest httpServletRequest){
+        Integer userId  = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.reportPost(userId,postId));
+    }
+
+    /**
+     * 申请学生认证
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
+    /*
+    @UserLoginToken
+    @PostMapping(value = "/user/student_apporove")
+    public Result studentCertification(@RequestParam Integer studentNum,HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(postService.studentCertification(userId,studentNum));
+    }
+*/
+
+    @UserLoginToken
+    @PostMapping(value = "/student_apporove")
+    public Result studentCertification(@RequestParam Integer studentNum,
+                                       @RequestParam String relaname,
+                                       @RequestParam Integer schoolId,
+                                       @RequestParam Integer collegeId,
+                                       @RequestParam Integer majorId,
+                                       @RequestParam String IdCard,
+                                       HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.studentCertification(userId,studentNum ,relaname, schoolId,
+                collegeId, majorId, IdCard));
+    }
+
+
 }

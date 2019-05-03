@@ -36,4 +36,18 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
        */
       @Query(value = "SELECT user_id FROM comment WHERE post_id=?1", nativeQuery = true)
       public Set<Integer> getListCommentUser(Integer id);
+
+      /**
+       * 删除评论通过贴子id
+       * @author fishkk
+       * @since 2019/4/27
+       *
+       * @param  postId 贴子id
+       * @return
+       */
+
+      public void deleteByPostId(Integer postId);
+
+      //通过用户ID查询评论表
+      public List<Comment> findAllByUserId(Integer userId);
 }

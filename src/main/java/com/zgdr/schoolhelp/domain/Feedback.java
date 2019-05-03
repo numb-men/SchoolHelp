@@ -18,6 +18,7 @@ import java.util.Date;
  */
 @Entity
 public class Feedback {
+
    /* 意见反馈的ID */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,9 +29,8 @@ public class Feedback {
     private Integer userId;
 
     /* 反馈的内容 */
-    @Column(length = 255)
     @NotBlank(message = "反馈内容不能为空")
-    @Length(min = 10, max = 225, message = "反馈内容不能少于10个字，多于255个字")
+    @Length(min = 10, max = 255, message = "反馈内容不能少于10个字，多于255个字")
     private String feedbackContent;
 
     /* 是否已经回复 */
