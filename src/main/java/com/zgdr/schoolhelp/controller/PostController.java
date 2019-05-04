@@ -314,7 +314,7 @@ public class PostController {
 
 
     /**
-     * 16删帖
+     * 16删帖自己的帖子
      * @author fishkk
      * @since 2019/4/25
      *
@@ -326,7 +326,8 @@ public class PostController {
     public void deletePostById(@RequestParam("postId") Integer postId,
                                HttpServletRequest httpServletRequest){
 
-        postService.deletePostById(postId);
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        postService.deletePostById(userId, postId);
     }
 
     /**

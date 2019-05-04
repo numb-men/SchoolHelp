@@ -370,7 +370,7 @@ public class UserController {
      * @return com.zgdr.schoolhelp.domain.Result
      */
     @UserLoginToken
-    @GetMapping(value = "")
+    @GetMapping(value = {"", "/"})
     public Result getUserAll(HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userRepository.findById(userId));
@@ -417,7 +417,7 @@ public class UserController {
      * @return null
      */
     @UserLoginToken
-    @PutMapping(value = "")
+    @PutMapping(value = {"", "/"})
     public Result updateUser (@Valid User user, HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.updateUser(userId,user));

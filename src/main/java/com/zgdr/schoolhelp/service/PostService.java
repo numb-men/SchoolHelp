@@ -1,7 +1,9 @@
 package com.zgdr.schoolhelp.service;
 
 import com.zgdr.schoolhelp.domain.*;
+import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.PostResultEnum;
+import com.zgdr.schoolhelp.exception.GlobalException;
 import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,7 @@ public class PostService {
 
         User user = userRepository.findById(userId).orElse(null);
         user.setPoints(user.getPoints()-post.getPoints());
+        user.setPostNum(user.getPostNum() + 1); // 用户发帖数+1
         userRepository.save(user);
         post.setUserName(user.getName());
         post.setPoints(post.getPoints());
@@ -149,20 +152,23 @@ public class PostService {
 
 
     /**
-     * 删除贴子
+     * 删除自己的贴子
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param id 贴子id
+     * @param userId 用户id
+     * @param postId 贴子id
      * @return void
      */
     @Transactional
-    public void deletePostById(Integer id){
-        Post post = this.readPostById(id);
-
-        reportRepository.deleteByPostId(id);
-        commentRepository.deleteByPostId(id);
-        approvalRepository.deleteByPostId(id);
+    public void deletePostById(Integer userId, Integer postId){
+        Post post = this.readPostById(postId);
+        if (! userId.equals(post.getUserId())){
+            throw new GlobalException(GlobalResultEnum.NOT_POWER);
+        }
+        reportRepository.deleteByPostId(postId);
+        commentRepository.deleteByPostId(postId);
+        approvalRepository.deleteByPostId(postId);
         postRepository.delete(post);
     }
 
@@ -237,8 +243,10 @@ public class PostService {
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
         User user = userRepository.findById(userId).orElse(null);
+        user.setCommentNum(user.getCommentNum() + 1);
         post.setCommentNum((post.getCommentNum()+1));
         postRepository.save(post);
+        userRepository.save(user);
         Date date = new Date();
         comment.setCommentUserName(user.getName());
         comment.setCommentTime(date);

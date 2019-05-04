@@ -104,7 +104,7 @@ public class UserTest {
 
     private User newUser(){
         return new User("name", "12345678901", "12345678", true, new Date(),
-                100, 10, 5, true, true,
+                100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
     }
 }

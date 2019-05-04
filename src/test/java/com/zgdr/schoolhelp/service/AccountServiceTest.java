@@ -43,10 +43,9 @@ public class AccountServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        user = new User("name", "12345678901", "12345678901", true, new Date(),
-                100, 10, 5, true, true,
-                true, new Date(), new Date()
-        );
+        user = new User("name", "12345678901", "12345678", true, new Date(),
+                100, 10, 5, 1, 2,true, true,
+                true, new Date(), new Date());
         userRepository.saveAndFlush(user);
         logger.info(user.toString());
     }

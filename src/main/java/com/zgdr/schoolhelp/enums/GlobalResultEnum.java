@@ -12,7 +12,8 @@ public enum GlobalResultEnum implements ResultEnum {
     UNKNOW_ERROR(-1, "未知错误"),
     NOT_LOGIN(-2, "未登录"),
     USER_NOT_FIND(-3, "用户不存在"),
-    TOKEN_CHECK_FAILED(-4, "登录凭证校验失败")
+    TOKEN_CHECK_FAILED(-4, "登录凭证校验失败"),
+    NOT_POWER(-8, "没有权限")
     ;
 
     private Integer code;

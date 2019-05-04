@@ -9,14 +9,13 @@ package com.zgdr.schoolhelp.enums;
  */
 public enum PostResultEnum implements ResultEnum {
 
-    NOT_FOUND(404,"未找到贴子"),
-    NODE(100,"各输入项输入不能为空"),
-    MORE_POINTS(101,"积分不足"),
-    ERROR_POINTS(5,"积分不能为负"),
-    NOT_POINTS(12,"积分为空"),
-    NO_DES(6,"描述为空"),
-    NOT_COMMENT(7,"请输入评论内容"),
-
+    NOT_FOUND(-404,"未找到贴子"),
+    NODE(-100,"各输入项输入不能为空"),
+    MORE_POINTS(-101,"积分不足"),
+    ERROR_POINTS(-5,"积分不能为负"),
+    NOT_POINTS(-12,"积分为空"),
+    NO_DES(-6,"描述为空"),
+    NOT_COMMENT(-7,"请输入评论内容")
     ;
 
     private Integer code;
