@@ -1,7 +1,6 @@
 package com.zgdr.schoolhelp.exception;
 
 import com.zgdr.schoolhelp.enums.FeedbackEnum;
-import com.zgdr.schoolhelp.enums.ResultEnum;
 
 /**
  * @ProjectName: schoolhelp

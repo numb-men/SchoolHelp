@@ -9,13 +9,13 @@ import com.zgdr.schoolhelp.exception.ImageException;
 import com.zgdr.schoolhelp.repository.HeadImageRepository;
 import com.zgdr.schoolhelp.repository.RollImageRepository;
 import com.zgdr.schoolhelp.utils.QiniuCloudUtil;
+import com.zgdr.schoolhelp.utils.UploadImageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * 用户头像表service层
@@ -37,117 +37,94 @@ public class ImageService {
     private UserService userService;
 
     /**
-    * @Description: 上传头像到七牛云，并保存url到数据库，如果数据库中有该用户头像，则更新
-    * @Param:MultipartFile image, Integer userId
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
+     * 上传头像到七牛云，并保存url到数据库，如果数据库中有该用户头像，则更新
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param   image 图片文件
+     * @param  userId 用户id
+     */
     public void uploadHeadImage(MultipartFile image, Integer userId){
-        if (image.isEmpty()) {
-             throw new ImageException(ImageResultEnum.EMPTY_FILE);//文件为空
-        }
+        UploadImageUtil uploadImageUtil=new UploadImageUtil();
         QiniuCloudUtil qiniuUtil = new QiniuCloudUtil();
-        HeadImage headImage = headImageRepository.findByUserId(userId);
-        if(headImage==null){//该用户没有上传过头像
-            try {
-                byte[] bytes = image.getBytes();
-                String imageName = UUID.randomUUID().toString();//为图片产生个随机名字
-                try {
-                    //使用base64方式上传到七牛云
-                    String url = qiniuUtil.put64image(bytes, imageName);//存储图片并返回图片储存的url
-                    HeadImage headImage1 = new HeadImage(url, userId);
-                    headImageRepository.save(headImage1);//记录存到数据库
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
-                throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
-            }
-        }else{//用户上传过图片，更新
-            String key=headImage.getImageUrl();//获取旧图片的url
+        HeadImage fheadImage = headImageRepository.findByUserId(userId);
+        if(fheadImage==null){
+            //上传头像，并将图片url保存到数据库
+            HeadImage headImage=new HeadImage(uploadImageUtil.uploadImage(image), userId);
+            headImageRepository.save(headImage);
+        }else{
             try{
-                qiniuUtil.delete(key);//删除存在七牛云的旧图片
-                byte[] bytes = image.getBytes();
-                String imageName = UUID.randomUUID().toString();//为图片产生个随机名字
-                try {
-                    //使用base64方式上传到七牛云
-                    String url = qiniuUtil.put64image(bytes, imageName);//存储图片并返回图片储存的url
-                    headImage.setImageUrl(url);
-                    headImageRepository.save(headImage);//记录存到数据库
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }catch (IOException e){
+                String key = fheadImage.getImageUrl();
+                //删除已存在七牛云的旧头像
+                qiniuUtil.delete(key);
+                //更新数据库的新图片的url
+                fheadImage.setImageUrl(uploadImageUtil.uploadImage(image));
+                headImageRepository.save(fheadImage);
+            }catch(IOException e){
                 throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
             }
         }
     }
 
+
     /**
-    * @Description:  返回用户的头像
-    * @Param:
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
+     * 返回用户的头像
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param  userId 用户id
+     * @return imageUrl 图片的url
+     */
     public String getHeadImage(Integer userId){
         HeadImage headImage = headImageRepository.findByUserId(userId);
         return headImage.getImageUrl();
     }
 
-
     /**
-    * @Description: 上传轮播板图片的接口
-    * @Param:
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
-   public void uploadRollImage(MultipartFile image, RollImage rollImage, Integer userId){
-        if(!userService.checkPower(userId)){//检查是否拥有管理员权限
+     * 上传轮播板图片的接口
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param  image 上传的图片文件
+     * @param  rollImage 轮播板的信息
+     * @param  userId 管理员的id
+     */
+    public void uploadRollImage(MultipartFile image, RollImage rollImage, Integer userId){
+        if(!userService.checkPower(userId)){
+            //检查是否拥有管理员权限
             throw new ImageException(ImageResultEnum.NO_POWER);
         }
-        RollImage rollImage1 = rollImageRepository.
+        RollImage frollImage = rollImageRepository.
                 findByImageIndexAndImagePosition(rollImage.getImageIndex(),rollImage.getImagePosition());
-        if (image.isEmpty()) {
-            throw new ImageException(ImageResultEnum.EMPTY_FILE);//文件为空
-        }
+        UploadImageUtil uploadImageUtil=new UploadImageUtil();
         QiniuCloudUtil qiniuUtil = new QiniuCloudUtil();
-        if(rollImage1==null){//该位置没有图片
+        if(frollImage==null){
+            //该轮播版没传过图片
+            rollImage.setImageUrl( uploadImageUtil.uploadImage(image));
+            rollImageRepository.save(rollImage);
+
+        }else{
+            //该轮播版传过图片，更新
             try {
-                byte[] bytes = image.getBytes();
-                String imageName = UUID.randomUUID().toString();//为图片产生个随机名字
-                try {
-                    //使用base64方式上传到七牛云
-                    String url = qiniuUtil.put64image(bytes, imageName);//存储图片并返回图片储存的url
-                    rollImage.setImageUrl(url);
-                    rollImageRepository.save(rollImage);//记录存到数据库
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } catch (IOException e) {
-                throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
-            }
-        }else{//更新操作
-            String key=rollImage1.getImageUrl();//获取旧图片的url
-            try{
-                qiniuUtil.delete(key);//删除存在七牛云的旧图片
-                byte[] bytes = image.getBytes();
-                String imageName = UUID.randomUUID().toString();//为图片产生个随机名字
-                try {
-                    //使用base64方式上传到七牛云
-                    String url = qiniuUtil.put64image(bytes, imageName);//存储图片并返回图片储存的url
-                    rollImage1.setImageUrl(url);
-                    rollImageRepository.save(rollImage1);//记录存到数据库
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                String key = frollImage.getImageUrl();
+                //删除存放在七牛云的旧图片
+                qiniuUtil.delete(key);
+                frollImage.setImageUrl(uploadImageUtil.uploadImage(image));
+                rollImageRepository.save(frollImage);
             }catch (IOException e){
                 throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
             }
         }
     }
+
+    /**
+     * 返回用户的头像
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param  position 轮播板位置
+     * @return List<RollImage>
+     */
     public List<RollImage> getRollImage(Boolean position){
        List<RollImage> list=rollImageRepository.findAllByImagePosition(position);
      if(list.isEmpty()){

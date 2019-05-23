@@ -5,13 +5,9 @@ import com.zgdr.schoolhelp.enums.QuesnaireResultEnum;
 import com.zgdr.schoolhelp.exception.QuesnaireException;
 import com.zgdr.schoolhelp.repository.QuesnaireAnswerRepository;
 import com.zgdr.schoolhelp.repository.QuesnaireRepository;
-import com.zgdr.schoolhelp.repository.QuestionAnswerRepository;
-import com.zgdr.schoolhelp.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -31,39 +27,38 @@ public class QuesnaireService {
     private QuesnaireRepository quesnaireRepository;
 
     @Autowired
-    private OptionService optionService;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
     private QuesnaireAnswerRepository quesnaireAnswerRepository;
 
-    @Autowired
-    private QuestionAnswerRepository questionAnswerRepository;
 
     /**
-    * @Description:新建问卷
-    * @Param:
-    * @return:  问卷
-    * @Author:yangji
-    * @Date: 2019/4/26
-    */
+     * 新建问卷
+     * @author yangji
+     * @since 2019/4/26
+     *
+     * @param   quesnaire 问卷信息
+     * @param   userId 创建问卷的用户id
+     * @return Quesnaire
+     */
     public Quesnaire creatQuesnaire(Quesnaire quesnaire, Integer userId){
             User user=userService.readUserById(userId);
-            if(quesnaire.getPostPoint()>user.getPoints()){//发布问卷的积分多于自身拥有的积分
+            //发布问卷的积分多于自身拥有的积分
+            if(quesnaire.getPostPoint()>user.getPoints()){
                 throw new QuesnaireException(QuesnaireResultEnum.LESS_POINTS);
             }
             return quesnaireRepository.save(quesnaire);
     }
 
     /**
-    * @Description:  根据问卷ID获取一张问卷的详细信息（问题）
-    * @Param:  Integer id
-    * @return:  一个List<Question>,属于该问卷的问题
-    * @Author:yangji
-    * @Date: 2019/4/27
-    */
+     * 根据问卷ID获取一张问卷的详细信息（问题）
+     * @author yangji
+     * @since 2019/4/27
+     *
+     * @param   id 问卷id
+     * @return Quesnaire
+     */
     public  Quesnaire getQuestionByQuesnaireId(Integer id) throws  QuesnaireException{
         Quesnaire quesnaire=quesnaireRepository.findById(id).orElse(null);
         if(quesnaire==null) {
@@ -73,23 +68,25 @@ public class QuesnaireService {
     }
 
     /**
-    * @Description: 获取所有的问卷列表,按时间排序（最新的在最前面）
-    * @Param:
-    * @return:  List<Quesnaire>
-    * @Author:yangji
-    * @Date: 2019/4/27
-    */
+     * 获取所有的问卷列表,按时间排序（最新的在最前面）
+     * @author yangji
+     * @since 2019/4/27
+     *
+     * @return List<Quesnaire>
+     */
     public List<Quesnaire> getAllQuesnaire() {
         return quesnaireRepository.findAll(new Sort(Sort.Direction.DESC, "publishTime"));
     }
 
-    /** 
-    * @Description: 根据问卷的ID删除问卷，级联删除，会删除问题表和选项表中属于该问卷的部分 
-    * @Param:  
-    * @return:  
-    * @Author:yangji
-    * @Date: 2019/4/27 
-    */ 
+
+    /**
+     * 根据问卷的ID删除问卷，级联删除，会删除问题表和选项表中属于该问卷的部分
+     * @author yangji
+     * @since 2019/4/27
+     *
+     * @param   id 问卷id
+     * @param   userId 请求删问卷的用户id
+     */
     public void deleteQuesnaireById(Integer id, Integer userId) throws QuesnaireException{
         Quesnaire quesnaire=quesnaireRepository.findById(id).orElse(null);
         if(quesnaire==null){
@@ -105,13 +102,16 @@ public class QuesnaireService {
         }
     }
 
-   /** 
-   * @Description:更新问卷
-   * @Param:
-   * @return:  
-   * @Author:yangji
-   * @Date: 2019/4/27 
-   */  
+    /**
+     * 更新问卷
+     * @author yangji
+     * @since 2019/4/27
+     *
+     * @param   id 问卷id
+     * @param   newQuesnaire 新的问卷信息
+     * @param   userId 请求更新问卷的用户id
+     *  @return Quesnaire
+     */
     public  Quesnaire updateQuesnaire(Integer id,Quesnaire newQuesnaire, Integer userId){
         Quesnaire quesnaire=quesnaireRepository.findById(id).orElse(null);
         if(quesnaire==null){
@@ -125,20 +125,22 @@ public class QuesnaireService {
         }
     }
 
-    /** 
-    * @Description: 用户填写问卷
-    * @Param:  
-    * @return:  
-    * @Author:yangji
-    * @Date: 2019/4/29 
-    */ 
+    /**
+     * 用户填写问卷
+     * @author yangji
+     * @since 2019/4/29
+     *
+     * @param   quesnaireId 问卷id
+     * @param   quesnaireAnswer 填写的问卷答案
+     */
     public void doReply(Integer quesnaireId, QuesnaireAnswer quesnaireAnswer){
         Integer userId=quesnaireAnswer.getUserId();
        if(quesnaireAnswerRepository.findByUserIdAndQuesnaireId(userId,quesnaireId)!=null){
             throw new QuesnaireException(QuesnaireResultEnum.NO_REPEAT_REPLY);
         }
         Quesnaire quesnaire=quesnaireRepository.findById(quesnaireId).orElse(null);
-        if(quesnaire.getFinishNum()==null){ //问卷已采集份数加一
+        //问卷已采集份数加一
+        if(quesnaire.getFinishNum()==null){
            quesnaire.setFinishNum(1);
         }else{
             quesnaire.setFinishNum(quesnaire.getFinishNum()+1);
@@ -148,16 +150,18 @@ public class QuesnaireService {
     }
 
     /**
-    * @Description:截止问卷
-    * @Param:问卷的id
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/4/30
-    */
+     * 截止问卷
+     * @author yangji
+     * @since 2019/4/30
+     *
+     * @param   userId 截止问卷的用户id
+     * @param  quesnaireId  问卷的id
+     */
     public void cutoffQuesnaire(Integer userId, Integer quesnaireId){
         Quesnaire quesnaire=quesnaireRepository.findById(quesnaireId).orElse(null);
         if(quesnaire.getUserId().equals(userId)){
-            quesnaire.setFinishTime(new Date());//把问卷的截止日期设为now
+            //把问卷的截止日期设为now
+            quesnaire.setFinishTime(new Date());
             quesnaireRepository.save(quesnaire);
         }else{
             throw new QuesnaireException(QuesnaireResultEnum.NO_POWER_TO_UPDATE);
