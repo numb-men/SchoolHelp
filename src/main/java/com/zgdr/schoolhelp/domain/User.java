@@ -53,7 +53,7 @@ public class User{
     private Integer collectPostNum = 0;
 
     /* 关注个数 */
-    private Integer fallowNum = 0;
+    private Integer followNum = 0;
 
     /* 帖子个数 */
     private Integer postNum = 0;
@@ -140,12 +140,12 @@ public class User{
         this.collectPostNum = collectPostNum;
     }
 
-    public Integer getFallowNum() {
-        return fallowNum;
+    public Integer getFollowNum() {
+        return followNum;
     }
 
-    public void setFallowNum(Integer fallowNum) {
-        this.fallowNum = fallowNum;
+    public void setFollowNum(Integer followNum) {
+        this.followNum = followNum;
     }
 
     public Integer getPostNum() {
@@ -210,7 +210,7 @@ public class User{
                 @NotBlank(message = "密码不能为空")
                 @Length(max = 255, min = 8, message = "密码的长度应在8-255之间") String password,
                 Boolean sex, Date birthdate, Integer points, Integer collectPostNum,
-                Integer fallowNum, Integer postNum, Integer commentNum, Boolean role, Boolean isCertified,
+                Integer followNum, Integer postNum, Integer commentNum, Boolean role, Boolean isCertified,
                 Boolean isOnline, Date registerTime, Date lastTime) {
 
         this.name = name;
@@ -220,7 +220,7 @@ public class User{
         this.birthdate = birthdate;
         this.points = points;
         this.collectPostNum = collectPostNum;
-        this.fallowNum = fallowNum;
+        this.followNum = followNum;
         this.postNum = postNum;
         this.commentNum = commentNum;
         this.role = role;
@@ -244,7 +244,7 @@ public class User{
                 ", birthdate=" + birthdate +
                 ", points=" + points +
                 ", collectPostNum=" + collectPostNum +
-                ", fallowNum=" + fallowNum +
+                ", followNum=" + followNum +
                 ", postNum=" + postNum +
                 ", commentNum=" + commentNum +
                 ", role=" + role +

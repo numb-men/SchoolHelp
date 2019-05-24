@@ -245,7 +245,6 @@ public class PostController {
       *
       * @param report
       * @param bindingResult 表单验证结果
-      * @return
       */
     @UserLoginToken
     @PostMapping(value = "/report")

@@ -46,8 +46,8 @@ public class ImageController {
     }
 
     /**
-    * @Description: 返回用户的头像
-    * @Param:
+    * 返回用户的头像
+    * @param
     * @return:用户头像的图片的url
     * @Author:yangji
     * @Date: 2019/5/2

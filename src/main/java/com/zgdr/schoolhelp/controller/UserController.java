@@ -397,7 +397,7 @@ public class UserController {
         userFind.setBirthdate(user.getBirthdate());
         userFind.setPoints(user.getPoints());
         userFind.setCollectPostNum(user.getCollectPostNum());
-        userFind.setFallowNum(user.getFallowNum());
+        userFind.setFollowNum(user.getFollowNum());
         userFind.setRole(user.getRole());
         userFind.setCertified(user.isCertified());
         userFind.setOnline(user.isOnline());
