@@ -1,22 +1,19 @@
 package com.zgdr.schoolhelp.controller;
 
-import com.alibaba.fastjson.parser.deserializer.AbstractDateDeserializer;
 import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.RollImage;
-import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.service.ImageService;
-import com.zgdr.schoolhelp.utils.QiniuCloudUtil;
 import com.zgdr.schoolhelp.utils.TokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 
 /**
  * 上传图片到七牛云的Controller
- *
  *
  * @author yangji
  * @version 1.0
@@ -30,47 +27,48 @@ public class ImageController {
     private ImageService imageService;
 
     /**
-    * @Description: 上传头像的接口，
-    * @Param:  MultipartFile image
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
+     * 上传头像的接口，
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param  image 图片文件
+     * @return result
+     */
     @ResponseBody
     @PostMapping(value = "/uploadimg/head")
     public Result uploadImage(@RequestParam MultipartFile image,
-                            HttpServletRequest httpServletRequest){
+                              HttpServletRequest httpServletRequest){
         Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
         imageService.uploadHeadImage(image, userId);
         return Result.success(null);
     }
 
     /**
-    * 返回用户的头像
-    * @param
-    * @return:用户头像的图片的url
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
+     * 返回用户的头像
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @return result
+     */
     @GetMapping(value = "download/head")
     public Result getHeadImage(HttpServletRequest httpServletRequest){
-        Integer userId=TokenUtil.getUserIdByRequest(httpServletRequest);
+        Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success( imageService.getHeadImage(userId));
     }
 
-
     /**
-    * @Description: 上传轮播版的图片
-    * @Param:
-    * @return:
-    * @Author:yangji
-    * @Date: 2019/5/2
-    */
+     * 上传轮播版的图片
+     * @author yangji
+     * @since 2019/5/2
+     *
+     * @param  image 图片文件
+     * @return result
+     */
     @PostMapping(value = "uploadimage/roll")
     public Result uploadRollImage(@RequestParam MultipartFile image,
                                   @Valid RollImage rollImage,
                                   HttpServletRequest httpServletRequest){
-        Integer userId=TokenUtil.getUserIdByRequest(httpServletRequest);
+        Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
         imageService.uploadRollImage(image,rollImage,userId);
         return Result.success(null);
     }

@@ -9,11 +9,22 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/4/25
  */
 public enum FeedbackEnum implements ResultEnum {
+    /* 请求的反馈不存在 */
     UNEXIST_FEEDBACK(-1,"该意见反馈不存在"),
+
+    /* 用户反馈失败 */
     FAIL_ADDFEEDBACK(-2,"添加反馈失败"),
-    POWER_LESS(-3,"权限不够");
+
+    /* 只有管理员才有的操作 */
+    POWER_LESS(-3,"权限不够"),
+
+    /* 反馈的内容不满足格式 */
+    INVALID_FEEDBACK(-4,"反馈内容应在10--255之间");
+
+   /* 错误码 */
     private Integer code;
 
+    /* 错误描述 */
     private  String msg;
 
     FeedbackEnum(Integer code, String msg) {
