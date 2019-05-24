@@ -109,7 +109,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         try {
             userId = Integer.valueOf(JWT.decode(token).getAudience().get(0));
         } catch (JWTDecodeException j) {
-            throw new RuntimeException("check token failed");
+            throw new GlobalException(GlobalResultEnum.TOKEN_CHECK_FAILED);
         }
 
         User user = userRepository.findById(userId).orElse(null);
