@@ -39,6 +39,13 @@ public class Report {
     public Report() {
     }
 
+    public Report(Integer userId, Integer postId, @NotBlank String reportDes, Date reportTime) {
+        this.userId = userId;
+        this.postId = postId;
+        this.reportDes = reportDes;
+        this.reportTime = reportTime;
+    }
+
     public Integer getReportId() {
         return reportId;
     }

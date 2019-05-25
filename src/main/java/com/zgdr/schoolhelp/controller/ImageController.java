@@ -4,10 +4,10 @@ import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.RollImage;
 import com.zgdr.schoolhelp.service.ImageService;
 import com.zgdr.schoolhelp.utils.TokenUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -23,7 +23,7 @@ import javax.validation.Valid;
 @RequestMapping(value = "")
 public class ImageController {
 
-    @Autowired
+    @Resource
     private ImageService imageService;
 
     /**

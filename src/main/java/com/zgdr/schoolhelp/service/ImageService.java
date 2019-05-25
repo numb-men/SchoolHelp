@@ -10,10 +10,9 @@ import com.zgdr.schoolhelp.repository.HeadImageRepository;
 import com.zgdr.schoolhelp.repository.RollImageRepository;
 import com.zgdr.schoolhelp.utils.QiniuCloudUtil;
 import com.zgdr.schoolhelp.utils.UploadImageUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,13 +26,13 @@ import java.util.List;
  */
 @Service
 public class ImageService {
-    @Autowired
+    @Resource
     private HeadImageRepository headImageRepository;
 
-    @Autowired
+    @Resource
     private RollImageRepository rollImageRepository;
 
-    @Autowired
+    @Resource
     private UserService userService;
 
     /**
@@ -55,11 +54,14 @@ public class ImageService {
         }else{
             try{
                 String key = fheadImage.getImageUrl();
-                //删除已存在七牛云的旧头像
-                qiniuUtil.delete(key);
+                //删除已存在七牛云的旧头像,如果当前头像是默认头像则不删除
+                if(!key.equals("ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05")){
+                    qiniuUtil.delete(key);
+                }
                 //更新数据库的新图片的url
-                fheadImage.setImageUrl(uploadImageUtil.uploadImage(image));
-                headImageRepository.save(fheadImage);
+                HeadImage headImage=new HeadImage(uploadImageUtil.uploadImage(image),userId);
+                headImage.setImageId(fheadImage.getImageId());
+                headImageRepository.save(headImage);
             }catch(IOException e){
                 throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
             }

@@ -3,14 +3,11 @@ package com.zgdr.schoolhelp.controller;
 import com.zgdr.schoolhelp.annotation.AdminLoginToken;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
-import com.zgdr.schoolhelp.repository.UserRepository;
 import com.zgdr.schoolhelp.service.FeedbackService;
-import com.zgdr.schoolhelp.service.TokenService;
 import com.zgdr.schoolhelp.utils.TokenUtil;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
@@ -26,12 +23,8 @@ import javax.validation.Valid;
 @RequestMapping(value = "/feedback")
 public class FeedbackController {
 
-    @Autowired
+    @Resource
     private FeedbackService feedbackService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private TokenService tokenService;
 
     /**
      * 新增用户反馈
@@ -61,7 +54,7 @@ public class FeedbackController {
     @AdminLoginToken
     @GetMapping(value = "/")
     public Result getAllFeedback(HttpServletRequest httpServletRequest){
-        Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return  Result.success(feedbackService.getAllFeedback(userId));
     }
 
@@ -77,7 +70,7 @@ public class FeedbackController {
     @GetMapping(value = "/details")
     public Result getFeedbackById(@RequestParam(value = "id") Integer id,
                                   HttpServletRequest httpServletRequest){
-        Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(feedbackService.getFeedbackById(id, userId));
     }
 }

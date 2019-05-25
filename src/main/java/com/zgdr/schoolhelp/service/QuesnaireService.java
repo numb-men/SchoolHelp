@@ -5,9 +5,9 @@ import com.zgdr.schoolhelp.enums.QuesnaireResultEnum;
 import com.zgdr.schoolhelp.exception.QuesnaireException;
 import com.zgdr.schoolhelp.repository.QuesnaireAnswerRepository;
 import com.zgdr.schoolhelp.repository.QuesnaireRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -23,13 +23,13 @@ import java.util.*;
 @Service
 public class QuesnaireService {
 
-    @Autowired
+    @Resource
     private QuesnaireRepository quesnaireRepository;
 
-    @Autowired
+    @Resource
     private UserService userService;
 
-    @Autowired
+    @Resource
     private QuesnaireAnswerRepository quesnaireAnswerRepository;
 
 

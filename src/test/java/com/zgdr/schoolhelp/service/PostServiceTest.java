@@ -1,21 +1,17 @@
 package com.zgdr.schoolhelp.service;
 
-import com.zgdr.schoolhelp.domain.Approval;
-import com.zgdr.schoolhelp.domain.Comment;
-import com.zgdr.schoolhelp.domain.Post;
-import com.zgdr.schoolhelp.domain.Report;
+import com.zgdr.schoolhelp.domain.*;
+import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.repository.*;
-import org.junit.FixMethodOrder;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -24,75 +20,129 @@ import java.util.List;
  * @创建者 fishkk
  * @创建时间 描述
  */
-@Ignore // 忽略测试
+//@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@FixMethodOrder(MethodSorters.NAME_ASCENDING) //按方法名字典顺序进行顺序测试
 public class PostServiceTest {
 
     private static Logger logger = LoggerFactory.getLogger(PostServiceTest.class);
 
-    @Autowired
+    private static Comment comment;
+
+    private static Post post;
+
+    private static User user;
+
+    private HeadImage headImage;
+
+    @Resource
     private PostRepository postRepository;
 
-
-    @Autowired
+    @Resource
     private PostService postService;
+
+    @Resource
+    private UserRepository userRepository;
+
+    @Resource
+    private CommentRepository commentRepository;
+
+    @Resource
+    private HeadImageRepository headImageRepository;
+
+    @Resource
+    private ApprovalRepository approvalRepository;
+
+    @Resource
+    private ReportRepository reportRepository;
+
+    @Before
+    public void setup(){
+
+        user = new User("name", "12345678901", "12345678", true, new Date(),
+                100, 10, 5, 1, 2,true, true,
+                true, new Date(), new Date());
+        user = userRepository.saveAndFlush(user);
+        headImage = new HeadImage("yudguysgueyf",user.getId());
+        headImageRepository.save(headImage);
+        comment = new Comment(user.getId(),16,"sadas","halo",new Date(),null);
+        post = new Post(user.getId(),223,"SCHAVCHAACSCY","CASVCYUAGUCYGUACAWSCW",
+                0,user.getName(),0, 0,0,0,
+                "求职",new Date(),null);
+    }
+    @After
+    public void delete(){
+        userRepository.delete(user);
+        headImageRepository.delete(headImage);
+    }
 
     @Test
     public void  createComment(){
-        Date date = new Date();
-        Comment comment = new Comment(2,16,"sadas","halo",date);
-        postService.createComment(comment,2);
+        comment = postService.createComment(comment,user.getId());
+        Assert.assertEquals("halo",
+                commentRepository.findById(comment.getCommentId()).orElse(null).getCommentContent());
+        commentRepository.delete(comment);
     }
 
     @Test
     public  void createPost(){
-        Date date = new Date();
-        Post post = new Post();
-        post.setPoints(12);
-        postService.createPost(post,2);
+        post=postService.createPost(post, user.getId(),null);
+        Assert.assertEquals("CASVCYUAGUCYGUACAWSCW",
+                postRepository.findByPostIdIn(post.getPostId()).getContent());
+        postRepository.delete(post);
     }
 
     @Test
-    public void otherReadPostById() {
-        Integer id = 16;
-        Post post = postRepository.findById(id).orElse(null);
-        post.setPoints(1);
-        logger.info(post.toString());
+    public void getPostPage(){
+        Assert.assertEquals(10,postService.getPostPage(0).getSize());
+    }
+
+    @Test
+    public void readPostById(){
+        post=postService.createPost(post, user.getId(),null);
+        Assert.assertEquals("CASVCYUAGUCYGUACAWSCW",
+                postService.readPostById(post.getPostId()).getContent());
+        postRepository.delete(post);
     }
 
     @Test
     public  void addPostApproval(){
-        Approval approval = new Approval(1,16,new Date());
-        postService.addPostApproval(approval,2);
+        post=postService.createPost(post, user.getId(),null);
+        Approval approval = new Approval(user.getId(),post.getPostId(),new Date());
+        postService.addPostApproval(approval,user.getId());
+        Approval approval1 = approvalRepository.findByPostIdAndUserId(post.getPostId(), user.getId());
+       //如果approval1为null，删除会报错
+        approvalRepository.delete(approval1);
+        postRepository.delete(post);
     }
 
-    @Test
+    @Test(expected = PostException.class)//期望抛出异常
     public  void deletePostById(){
-//        Integer id =16;
-//        postService.deletePostById(id);
+        post = postService.createPost(post, user.getId(),null);
+        postService.deletePostById(post.getPostId(), user.getId());
+        postRepository.findById(post.getPostId()).orElse(null);
     }
 
     @Test
     public void updatePost(){
-        Integer postId = 16;
-        String newContent = "sadasdada";
-        postService.updatePost(16,newContent);
+        post = postService.createPost(post, user.getId(),null);
+        postService.updatePost(post.getPostId(), "hkashcjuhackhakschk");
+        post = postRepository.findByPostIdIn(post.getPostId());
+        Assert.assertEquals("hkashcjuhackhakschk", post.getContent());
+        postRepository.delete(post);
     }
 
-    @Test
-    public void  isnull(){
-        Integer id = 16;
-        Boolean x = postService.isnull(16);
-        logger.info(x.toString());
+   @Test
+    public void createReport(){
+        post = postService.createPost(post, user.getId(),null);
+        Report report = new Report(user.getId(),post.getPostId(),"bascjhasbcjhabsc",new Date());
+        postService.createReport(report,user.getId());
+        Report report1= reportRepository.findByUserIdAndPostId(user.getId(), post.getPostId());
+        Assert.assertEquals("bascjhasbcjhabsc", report1.getReportDes());
+        reportRepository.delete(report1);
+        postRepository.delete(post);
+
     }
-//
-//    @Test
-//    public void createReport(){
-//        Report report = new Report(3,16,"dadsdasd，new",new Date() );
-//        postService.createReport(report,3);
-//    }
 
     @Test
     public void getList(){
