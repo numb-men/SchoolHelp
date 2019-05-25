@@ -5,9 +5,9 @@ import com.zgdr.schoolhelp.domain.User;
 import com.zgdr.schoolhelp.enums.FeedbackEnum;
 import com.zgdr.schoolhelp.exception.FeedbackExceotion;
 import com.zgdr.schoolhelp.repository.FeedbackRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -22,9 +22,9 @@ import java.util.List;
 @Service
 public class FeedbackService {
 
-    @Autowired
+    @Resource
     private FeedbackRepository feedbackRepository;
-    @Autowired
+    @Resource
     private UserService userService;
 
     /**
@@ -37,7 +37,7 @@ public class FeedbackService {
      * @return feedback
      */
     public Feedback creatFeedback(String feedbackContent, Integer userId){
-       if(feedbackContent.length() > 255||feedbackContent.length() < 10){
+       if(feedbackContent.length() > 255 ||  feedbackContent.length() < 10){
             throw new FeedbackExceotion(FeedbackEnum.INVALID_FEEDBACK);
        }
        Feedback feedback=new Feedback(userId, feedbackContent, false, new Date());
@@ -54,7 +54,8 @@ public class FeedbackService {
      */
     public List<Feedback> getAllFeedback(Integer userId){
         User user=userService.readUserById(userId);
-        if(user!=null&&user.getRole()){//管理员才有查看意见反馈的权限
+        //管理员才有查看意见反馈的权限
+        if(user!=null&&user.getRole()){
             return feedbackRepository.findAll();
         }else{
             throw new FeedbackExceotion(FeedbackEnum.POWER_LESS);

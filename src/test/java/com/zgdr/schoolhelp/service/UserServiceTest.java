@@ -53,7 +53,7 @@ public class UserServiceTest {
 
     private Post newPost(){
         return new Post(1, 2, "帖子标题", "帖子内容", 12,"ads", 200,
-                10, 3, 1, "求职", new Date());
+                10, 3, 1, "求职", new Date(),"asd");
     }
 
     @Before

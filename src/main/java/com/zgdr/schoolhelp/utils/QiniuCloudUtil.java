@@ -34,12 +34,12 @@ public class QiniuCloudUtil {
     private static final String SECRET_KEY = "9onwDma3TMm5u-qh4lVksiOtGP2MwS8l3qfRG1OT";
 
     // 要上传的空间
-    private static final String bucketname = "schoolhelp";
+    private static final String bucketname = "s";
 
     // 根据账号生成的密钥
     private static final Auth auth = Auth.create(ACCESS_KEY, SECRET_KEY);
 
-    private static final String DOMAIN = "pqty9tq3p.bkt.clouddn.com";
+    private static final String DOMAIN = "ps0mdxwdu.bkt.clouddn.com";
 
  //   private static final String style = "自定义的图片样式";
 

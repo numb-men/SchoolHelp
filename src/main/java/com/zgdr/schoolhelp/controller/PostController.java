@@ -8,13 +8,15 @@ import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.service.PostService;
 import com.zgdr.schoolhelp.utils.TokenUtil;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.LoggerFactory;;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.List;
 
 
 /**
@@ -31,10 +33,24 @@ import javax.validation.Valid;
 
 public class PostController {
 
-    @Autowired
+    @Resource
     private PostService postService;
 
     private final static Logger logger = LoggerFactory.getLogger(PostController.class);
+
+    /**
+     * 分页获取帖子列表
+     * @author yangji
+     * @since 2019/5/25
+     *
+     * @return page<post> 分页的帖子
+     */
+    @PassToken
+    @GetMapping (value = "/pages")
+    public Result getPostPage(@RequestParam(value = "num") Integer num){
+        return Result.success(postService.getPostPage(num));
+    }
+
 
     /**
       * 获取贴子详情
@@ -59,7 +75,7 @@ public class PostController {
      * @author fishkk
      * @since 2019/4/25
      *
-     * @param  id
+     * @param  id 帖子id
      * @return 贴子的相关信息
      */
     @PassToken
@@ -76,7 +92,7 @@ public class PostController {
        * @author fishkk
        * @since 2019/4/25
        *
-       * @param num
+       * @param num 第几页
        * @return 返回最新的num条消息 num>贴子总数则返回全部贴子
        */
     @PassToken
@@ -90,7 +106,7 @@ public class PostController {
         * @author fishkk
         * @since 2019/4/25
         *
-        * @param typeId
+        * @param typeId 帖子类型id
         * @return 放回类别id为typeid的贴子列表
         */
     @PassToken
@@ -121,7 +137,6 @@ public class PostController {
       * @author fishkk
       * @since 2019/4/25
       *
-      * @param
       * @return 热词列表
       */
     @PassToken
@@ -205,8 +220,7 @@ public class PostController {
      * @author fishkk
      * @since 2019/4/25
      * token
-     * @param  approval
-     * @return
+     * @param  approval 点赞的信息
      *
      */
     @UserLoginToken
@@ -223,9 +237,8 @@ public class PostController {
       * @author fishkk
       * @since 2019/4/25
       *token
-      * @param comment
+      * @param comment 评论信息
       * @param bindingResult 表单验证结果
-      * @return
       */
     @UserLoginToken
     @PostMapping(value = "/comment")
@@ -243,9 +256,8 @@ public class PostController {
       * @author fishkk
       * @since 2019/4/25
       *
-      * @param report
+      * @param report 举报信息
       * @param bindingResult 表单验证结果
-      * @return
       */
     @UserLoginToken
     @PostMapping(value = "/report")
@@ -265,9 +277,8 @@ public class PostController {
       * @author fishkk
       * @since 2019/4/27
       *
-      * @param  postId
+      * @param  postId 帖子id
       * @param submitCommentId 获得积分的评论
-      * @return
       */
     @UserLoginToken
     @PostMapping(value = "/submit")
@@ -284,16 +295,15 @@ public class PostController {
      * @author fishkk
      * @since 2019/4/25
      *
-     * @param post
+     * @param post 帖子信息
      * @param bindingResult 表单验证结果
      * @return  贴子对象
      */
 
     @UserLoginToken
     @PostMapping(value = "")
-//    @NotNull(value = "points")
-    public Result crateUser(@Valid Post post,
-//                          @RequestParam(name = "points") Integer points,
+    public Result creatPost(@Valid Post post,
+                            @RequestParam(required = false) List<MultipartFile> image,
                             BindingResult bindingResult,
                             HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
@@ -303,13 +313,10 @@ public class PostController {
         if (postService.isRightPoints(post,userId)){
             return Result.error(PostResultEnum.MORE_POINTS);
         }
-//        if (post.getPoints().equals(new Object()) ){
-//            return Result.error(PostResultEnum.NOT_POINTS);
-//        }
         if ( post.getPoints() < 0 ){
             return Result.error(PostResultEnum.ERROR_POINTS);
         }
-        return Result.success(postService.createPost(post,userId));
+            return Result.success(postService.createPost(post,userId,image));
     }
 
 
@@ -319,7 +326,6 @@ public class PostController {
      * @since 2019/4/25
      *
      * @param postId 贴子id
-     * @return
      */
     @UserLoginToken
     @DeleteMapping(value = "")
@@ -335,9 +341,8 @@ public class PostController {
       * @author fishkk
       * @since 2019/4/25
       *
-      * @param postId
+      * @param postId 帖子id
       * @param newContent 修改的正文内容
-      * @return void
       */
     @UserLoginToken
     @PutMapping(value = "")

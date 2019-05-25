@@ -38,16 +38,20 @@ public class Comment {
     /* 评论日期*/
     private Date commentTime;
 
+    /* 评论者的头像url */
+    private  String headImageUrl;
+
     public Comment() {
     }
 
     public Comment(Integer userId, Integer postId, String commentUserName,
-                   @NotBlank String commentContent, Date commentTime) {
+                   @NotBlank String commentContent, Date commentTime, String headImageUrl) {
         this.userId = userId;
         this.postId = postId;
         this.commentUserName = commentUserName;
         this.commentContent = commentContent;
         this.commentTime = commentTime;
+        this.headImageUrl = headImageUrl;
     }
 
     public String getCommentUserName() {
@@ -96,6 +100,14 @@ public class Comment {
 
     public void setCommentTime(Date commentTime) {
         this.commentTime = commentTime;
+    }
+
+    public String getHeadImageUrl() {
+        return headImageUrl;
+    }
+
+    public void setHeadImageUrl(String headImageUrl) {
+        this.headImageUrl = headImageUrl;
     }
 
     @Override
