@@ -415,7 +415,7 @@ public class UserService {
         if (user == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);
         }
-        if (attentionUserId == beAttentionUserId )
+        if (attentionUserId.equals(beAttentionUserId))
         {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
         }
@@ -436,7 +436,7 @@ public class UserService {
      * @return  null
      */
     public Object deleteUserAttention (Integer attentionUserId,Integer beAttentionUserId){
-        if (attentionUserId == beAttentionUserId )
+        if (attentionUserId.equals(beAttentionUserId))
         {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
         }
@@ -457,7 +457,7 @@ public class UserService {
      * @return Integer Message列表
      **/
     public Integer newMessage(Integer accept,String messageContent,Integer send){
-        if (accept == send){
+        if (accept.equals(send)){
             throw new UserException(UserResultEnum.CANT_SEND_SELF);
         }
         User user =  userRepository.findById(accept).orElse(null);

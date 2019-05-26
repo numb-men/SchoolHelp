@@ -5,7 +5,6 @@ import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.repository.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +31,8 @@ public class PostServiceTest {
     private static Post post;
 
     private static User user;
+
+    private static User user1;
 
     private HeadImage headImage;
 
@@ -62,17 +63,22 @@ public class PostServiceTest {
         user = new User("name", "12345678901", "12345678", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
+        user1 = new User("name", "12345678903", "12345378", true, new Date(),
+                100, 10, 5, 1, 2,true, true,
+                true, new Date(), new Date());
         user = userRepository.saveAndFlush(user);
+        user1 = userRepository.saveAndFlush(user1);
         headImage = new HeadImage("yudguysgueyf",user.getId());
         headImageRepository.save(headImage);
         comment = new Comment(user.getId(),16,"sadas","halo",new Date(),null);
         post = new Post(user.getId(),223,"SCHAVCHAACSCY","CASVCYUAGUCYGUACAWSCW",
                 0,user.getName(),0, 0,0,0,
-                "求职",new Date(),null);
+                "1",new Date(),null);
     }
     @After
     public void delete(){
         userRepository.delete(user);
+        userRepository.delete(user1);
         headImageRepository.delete(headImage);
     }
 
@@ -145,40 +151,48 @@ public class PostServiceTest {
     }
 
     @Test
-    public void getList(){
-
-        postService.getCommentByPostID(16);
-        postService.getApprovalList(16);
-        postService.getCommentUserList(16);
-        postService.getLastPostByNum(16);
-        postService.getPostAndComment(16);
-        postService.getReportUserList(16);
-    }
-
-    @Test
     public void getPostAndComment(){
-        Integer postId = 16;
-        HashMap hashMap = postService.getPostAndComment(postId);
-        logger.info(hashMap.toString());
-    }
-
-    @Test
-    public void getLastPostByNum(){
-        Integer num = 3 ;
-        List<Post> list = postService.getLastPostByNum(num);
-        logger.info(list.toString());
+        post=postService.createPost(post, user.getId(),null);
+        comment.setPostId(post.getPostId());
+        comment = postService.createComment(comment,user.getId());
+        HashMap hashMap=postService.getPostAndComment(post.getPostId());
+        Post post1 = (Post) hashMap.get("post");
+        Assert.assertEquals("CASVCYUAGUCYGUACAWSCW", post1.getContent());
+        postRepository.delete(post);
+        commentRepository.delete(comment);
     }
 
     @Test
     public  void getListByKeyword(){
-        String keyword = "ww";
+        post=postService.createPost(post, user.getId(),null);
+        String keyword = "UCYGUACAWSCW";
         List<Post> list = postService.findPostByKeyword(keyword);
-        logger.info(list.toString());
+        for(Post post1:list){
+           Assert.assertEquals(false, post1.getContent().indexOf(keyword)==-1) ;
+        }
+        postRepository.delete(post);
+    }
+
+    @Test
+    public void findByPostType(){
+        post=postService.createPost(post, user.getId(),null);
+        List<Post> postList = postService.findPostsByPostType(1);
+        for(Post post1:postList){
+            Assert.assertEquals("1", post1.getPostType());
+        }
+        postRepository.delete(post);
     }
 
     @Test
     public  void submitPost(){
-
+        post=postService.createPost(post, user.getId(),null);
+        comment.setPostId(post.getPostId());
+        comment.setUserId(user1.getId());
+        comment = postService.createComment(comment,user.getId());
+        postService.sumbitPost(user.getId(),post.getPostId(), comment.getCommentId());
+        Assert.assertEquals("100",user.getPoints().toString());
+        postRepository.delete(post);
+        commentRepository.delete(comment);
     }
 }
 

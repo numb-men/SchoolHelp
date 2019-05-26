@@ -12,6 +12,7 @@ import java.util.List;
  * @version 1.0
  * @since 2019/5/24
  */
-public interface PostImageRepostiry extends JpaRepository<PostImage,Integer> {
+public interface PostImageRepository extends JpaRepository<PostImage,Integer> {
     List<PostImage> findByPostId(Integer postId);
+    void deleteAllByPostId(Integer postId);
 }

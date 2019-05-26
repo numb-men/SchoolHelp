@@ -51,7 +51,7 @@ public class PostService {
     private HeadImageRepository headImageRepository;
 
     @Resource
-    private PostImageRepostiry postImageRepostiry;
+    private PostImageRepository postImageRepostiry;
 
 
     /**
@@ -79,7 +79,7 @@ public class PostService {
     }
 
     /**
-     * 创建贴子贴子
+     * 创建贴子
      * @author fishkk
      * @since 2019/4/24
      *
@@ -206,6 +206,7 @@ public class PostService {
         reportRepository.deleteByPostId(postId);
         commentRepository.deleteByPostId(postId);
         approvalRepository.deleteByPostId(postId);
+        postImageRepostiry.deleteAllByPostId(postId);
         postRepository.delete(post);
     }
 
@@ -396,7 +397,7 @@ public class PostService {
         if(comment == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
         }
-        //       获取获得积分的用户
+        //获取获得积分的用户
         Integer user1 =  comment.getUserId();
         User userget =  userRepository.findById(user1).orElse(null);
         if(userget == null){
