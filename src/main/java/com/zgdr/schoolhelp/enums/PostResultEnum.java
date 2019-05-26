@@ -28,7 +28,10 @@ public enum PostResultEnum implements ResultEnum {
     NO_DES(-20,"描述为空"),
 
     /* 评论内容为空 */
-    NOT_COMMENT(-21,"请输入评论内容")
+    NOT_COMMENT(-21,"请输入评论内容"),
+
+    /* 发帖图片多余九张 */
+    TO_MUCH_IMAGE(-54,"最多只能添加9张图片");
     ;
 
     private Integer code;

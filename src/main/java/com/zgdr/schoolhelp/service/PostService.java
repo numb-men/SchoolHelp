@@ -72,10 +72,10 @@ public class PostService {
      *
      * @return  Page<Post>
      */
-    public Page<Post> getPostPage(Integer num){
+    public Page<Post> getPostPage(Integer num, Integer postType){
         Sort sort = new Sort(Sort.Direction.DESC, "issueTime");
         Pageable pageable = PageRequest.of(num,10, sort);
-        return postRepository.findAll(pageable);
+        return postRepository.findPostsByPostType(pageable,postType.toString());
     }
 
     /**
@@ -115,6 +115,9 @@ public class PostService {
         }
         post=postRepository.save(post);
         if(image != null){
+            if(image.size() > 9){
+                throw new PostException(PostResultEnum.TO_MUCH_IMAGE);
+            }
             UploadImageUtil uploadImageUtil=new UploadImageUtil();
             for(MultipartFile postImage : image){
                 postImageRepostiry.save(new PostImage(post.getPostId(), uploadImageUtil.uploadImage(postImage)));

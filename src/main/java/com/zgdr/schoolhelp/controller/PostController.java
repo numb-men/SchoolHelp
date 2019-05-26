@@ -47,8 +47,9 @@ public class PostController {
      */
     @PassToken
     @GetMapping (value = "/pages")
-    public Result getPostPage(@RequestParam(value = "num") Integer num){
-        return Result.success(postService.getPostPage(num));
+    public Result getPostPage(@RequestParam(value = "num") Integer num,
+                              @RequestParam(value = "postType")  Integer postType){
+        return Result.success(postService.getPostPage(num, postType));
     }
 
 
