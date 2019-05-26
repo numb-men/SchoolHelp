@@ -8,6 +8,7 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/4/17
  */
 public enum GlobalResultEnum implements ResultEnum {
+    /*枚举*/
     SUCCESS(0, "成功"),
     UNKNOW_ERROR(-1, "未知错误"),
     NOT_LOGIN(-2, "未登录"),
