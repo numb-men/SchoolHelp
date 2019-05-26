@@ -8,6 +8,7 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/4/17
  */
 public enum UserResultEnum implements ResultEnum {
+    /*枚举*/
     ID_NOT_FOUND(-1, "用户不存在"),
     NO_POWER(-2, "没有权限"),
     CEN_NOT_DELETE_SELF(-3, "不能删除自身"),
@@ -32,7 +33,8 @@ public enum UserResultEnum implements ResultEnum {
     CHOSE_MAJOR(-151,"请选择专业"),
     MAJOR_NULL(-161,"专业不存在"),
     IDCARD_ERROR(-171,"身份证信息错误"),
-    PASSWORD_MIN_MAX(-181,"密码的长度应在8-255之间")
+    PASSWORD_MIN_MAX(-181,"密码的长度应在8-255之间"),
+    REPORT_NULL(-182,"举报消息不能为空")
     ;
 
     private Integer code;

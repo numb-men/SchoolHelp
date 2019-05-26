@@ -8,6 +8,7 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/4/26
  */
 public enum AccountResultEnum implements ResultEnum{
+    /*枚举*/
     HAS_REGISTERED(-1, "该手机号已注册"),
     NOT_USER(-2, "用户不存在"),
     PASSWORD_ERROR(-3, "密码错误"),

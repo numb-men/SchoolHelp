@@ -9,6 +9,7 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/4/27
  */
 public enum QuesnaireResultEnum  implements  ResultEnum{
+    /*枚举*/
    UNEXIST_QUESNAIRE(-3,"问卷不存在"),
    INVALID_FORM(-2,"表单验证失败"),
    NO_POWER_TO_DELETE(-4, "无权限删除该问卷"),

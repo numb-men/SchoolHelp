@@ -453,7 +453,7 @@ public class UserController {
                              @RequestParam Integer accept,
                              HttpServletRequest httpServletRequest){
         Integer send  = TokenUtil.getUserIdByRequest(httpServletRequest);
-        if (messageContent != null && messageContent.equals("")){
+        if (messageContent != null && "".equals(messageContent)){
             throw new UserException(UserResultEnum.MESSAGE_CANT_NULL);
         }
         return Result.success(userService.newMessage(accept,messageContent,send));
@@ -470,9 +470,10 @@ public class UserController {
      **/
     @UserLoginToken
     @PostMapping(value = "/user/report")
-    public Result reportPost(@RequestParam Integer postId,HttpServletRequest httpServletRequest){
+    public Result reportPost(@RequestParam Integer postId,HttpServletRequest httpServletRequest,
+                             @RequestParam String reportDes){
         Integer userId  = TokenUtil.getUserIdByRequest(httpServletRequest);
-        return Result.success(userService.reportPost(userId,postId));
+        return Result.success(userService.reportPost(userId,postId,reportDes));
     }
 
     /**
