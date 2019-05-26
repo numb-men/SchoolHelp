@@ -100,7 +100,7 @@ public class PostServiceTest {
 
     @Test
     public void getPostPage(){
-        Assert.assertEquals(10,postService.getPostPage(0).getSize());
+        Assert.assertEquals(10,postService.getPostPage(0,1).getSize());
     }
 
     @Test
