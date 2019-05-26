@@ -58,5 +58,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
 
 
-
 }
