@@ -150,7 +150,7 @@ public class UserServiceTest {
 
     @After
     public void tearDown() throws Exception {
-        userRepository.deleteAll();
+    //    userRepository.deleteAll();
     }
 
     @Test
@@ -542,22 +542,19 @@ public class UserServiceTest {
      * @author 星夜、痕
      * @since 2019/5/24
      **/
-    /*
+/*
     @Test
     public void studentCertification(){
-        User user1 = newUser();
-        User user2 = newUser();
+        User user3 = new User("name", "98765432112", "12345678", true, new Date(),
+                100, 10, 5, 1, 2,true, true,
+                true, new Date(), new Date());
+        userService.createUser(user3);
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
-
-        Student student = newStudent();
-        student.setUserId(user1.getId());
-        student.setUserId(user2.getId());
+        Student student = new  Student(221600205,"chenhongbao",1,1,1,"532526199705310517",new Date());
+        student.setUserId(user3.getId());
         studentRepository.save(student);
 
-        Assert.assertEquals(null,userService.studentCertification(user2.getId(),student.getStudentNum(),student.getRelaname(),student.getSchoolId(),
+        Assert.assertEquals(null,userService.studentCertification(user3.getId(),student.getStudentNum(),student.getRelaname(),student.getSchoolId(),
                 student.getCollegeId(),student.getMajorId(),student.getIdCard()));
 
     }
@@ -592,25 +589,20 @@ public class UserServiceTest {
      * @author 星夜、痕
      * @since 2019/5/24
      **/
-    /*
+
     @Test
     public void getPosts(){
-        UserFind user1 = newUserFind();
-        UserFind user2 = newUserFind();
-
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
+        User user2 = new User("name", "12345678901", "12345678fdsasfaf", true, new Date(),
+                100, 10, 5, 1, 2,true, true,
+                true, new Date(), new Date());
         userService.createUser(user2);
 
         Post post = newPost();
-        post.setUserId(user1.getId());
         post.setUserId(user2.getId());
         postRepository.save(post);
 
-
-        userService.getPosts(1);
         Integer postIdFound = userService.getPosts(user2.getId()).get(0);
         Assert.assertEquals(post.getPostId(), postIdFound);
     }
-*/
+
 }

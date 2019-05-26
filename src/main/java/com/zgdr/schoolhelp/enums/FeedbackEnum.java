@@ -10,16 +10,16 @@ package com.zgdr.schoolhelp.enums;
  */
 public enum FeedbackEnum implements ResultEnum {
     /* 请求的反馈不存在 */
-    UNEXIST_FEEDBACK(-1,"该意见反馈不存在"),
+    UNEXIST_FEEDBACK(-6,"该意见反馈不存在"),
 
     /* 用户反馈失败 */
-    FAIL_ADDFEEDBACK(-2,"添加反馈失败"),
+    FAIL_ADDFEEDBACK(-7,"添加反馈失败"),
 
     /* 只有管理员才有的操作 */
-    POWER_LESS(-3,"权限不够"),
+    POWER_LESS(-8,"权限不够"),
 
     /* 反馈的内容不满足格式 */
-    INVALID_FEEDBACK(-4,"反馈内容应在10--255之间");
+    INVALID_FEEDBACK(-9,"反馈内容应在10--255之间");
 
    /* 错误码 */
     private Integer code;
