@@ -19,16 +19,16 @@ public enum PostResultEnum implements ResultEnum {
     MORE_POINTS(-101,"积分不足"),
 
     /* 用户输入的积分为负数 */
-    ERROR_POINTS(-5,"积分不能为负"),
+    ERROR_POINTS(-18,"积分不能为负"),
 
     /* 用户没有输入积分 */
-    NOT_POINTS(-12,"积分为空"),
+    NOT_POINTS(-19,"积分为空"),
 
     /* 帖子内容为空 */
-    NO_DES(-6,"描述为空"),
+    NO_DES(-20,"描述为空"),
 
     /* 评论内容为空 */
-    NOT_COMMENT(-7,"请输入评论内容")
+    NOT_COMMENT(-21,"请输入评论内容")
     ;
 
     private Integer code;
