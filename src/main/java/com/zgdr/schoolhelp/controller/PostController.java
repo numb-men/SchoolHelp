@@ -226,11 +226,11 @@ public class PostController {
      */
     @UserLoginToken
     @PostMapping(value = "/approval")
-    public void approval(@Valid Approval approval,BindingResult bindingResult,
+    public Result approval(@Valid Approval approval,BindingResult bindingResult,
                          HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.addPostApproval(approval,userId);
-        //return  null;
+        return Result.success(null);
     }
     
     /**
@@ -243,13 +243,14 @@ public class PostController {
       */
     @UserLoginToken
     @PostMapping(value = "/comment")
-    public void comment(@Valid Comment comment ,BindingResult bindingResult,
+    public Result comment(@Valid Comment comment ,BindingResult bindingResult,
                         HttpServletRequest httpServletRequest){
         if(bindingResult.hasErrors()){
             throw new PostException(PostResultEnum.NOT_COMMENT);
         }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createComment(comment,userId);
+        return Result.success(null);
     }
     
     /**
@@ -262,13 +263,14 @@ public class PostController {
       */
     @UserLoginToken
     @PostMapping(value = "/report")
-    public void report(@Valid Report report ,BindingResult bindingResult,
+    public Result report(@Valid Report report ,BindingResult bindingResult,
                        HttpServletRequest httpServletRequest){
         if(bindingResult.hasErrors()){
             throw new PostException(PostResultEnum.NO_DES);
         }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createReport(report,userId);
+        return Result.success(null);
     }
 
 
@@ -283,12 +285,12 @@ public class PostController {
       */
     @UserLoginToken
     @PostMapping(value = "/submit")
-    public void submitPost(@RequestParam("postId") Integer postId,
+    public Result submitPost(@RequestParam("postId") Integer postId,
                            @RequestParam("submitCommentId") Integer submitCommentId,
                            HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
          postService.sumbitPost(userId,postId,submitCommentId);
-
+        return Result.success(null);
     }
 
     /**
@@ -330,11 +332,11 @@ public class PostController {
      */
     @UserLoginToken
     @DeleteMapping(value = "")
-    public void deletePostById(@RequestParam("postId") Integer postId,
+    public Result deletePostById(@RequestParam("postId") Integer postId,
                                HttpServletRequest httpServletRequest){
-
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.deletePostById(userId, postId);
+        return Result.success(null);
     }
 
     /**
@@ -347,12 +349,13 @@ public class PostController {
       */
     @UserLoginToken
     @PutMapping(value = "")
-    public void updatePost(@RequestParam("postId") Integer postId,
+    public Result updatePost(@RequestParam("postId") Integer postId,
                            @RequestParam("newContent") String newContent){
         if(newContent.isEmpty()){
             throw new PostException(PostResultEnum.NO_DES);
         }
         postService.updatePost(postId , newContent);
+        return Result.success(null);
     }
 
 
