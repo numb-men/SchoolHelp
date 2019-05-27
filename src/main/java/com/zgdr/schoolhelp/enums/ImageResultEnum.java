@@ -12,7 +12,9 @@ public enum ImageResultEnum implements ResultEnum{
     /*枚举*/
     EMPTY_FILE(-15,"文件为空"),
     NO_POWER(-16, "你没有权限"),
-    NO_RESOURCE(-17,"还未上传资源");
+    NO_RESOURCE(-17,"还未上传资源"),
+    TYPE_ERROR(-55, "文件格式错误");
+
 
     private Integer code;
 

@@ -53,6 +53,9 @@ public class PostService {
     @Resource
     private PostImageRepository postImageRepostiry;
 
+    @Resource
+    private UserService userService;
+
 
     /**
      * 返回全部贴子信息
@@ -205,7 +208,7 @@ public class PostService {
         if(post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-        if (! userId.equals(post.getUserId())){
+        if (! userId.equals(post.getUserId())&&!userService.checkPower(userId)){
             throw new GlobalException(GlobalResultEnum.NOT_POWER);
         }
         reportRepository.deleteByPostId(postId);
