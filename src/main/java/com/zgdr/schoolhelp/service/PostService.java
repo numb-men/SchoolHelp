@@ -139,7 +139,6 @@ public class PostService {
         if (post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-
         return post;
     }
 
@@ -202,7 +201,10 @@ public class PostService {
      */
     @Transactional
     public void deletePostById(Integer userId, Integer postId){
-        Post post = this.readPostById(postId);
+        Post post = postRepository.findById(postId).orElse(null);
+        if(post == null){
+            throw new PostException(PostResultEnum.NOT_FOUND);
+        }
         if (! userId.equals(post.getUserId())){
             throw new GlobalException(GlobalResultEnum.NOT_POWER);
         }
@@ -377,7 +379,7 @@ public class PostService {
     }
 
     public List<Post>  findPostsByPostType(Integer postType){
-        return postRepository.findPostsByPostType(postType);
+        return postRepository.findPostsByPostType(postType.toString());
     }
 
     public List<Post>  findPostByKeyword(String keyword){
@@ -395,13 +397,12 @@ public class PostService {
      * @param  commentId 评论的id
      */
     public void sumbitPost(Integer userId ,Integer postId ,Integer commentId){
-
         Comment comment = commentRepository.findById(commentId).orElse(null);
         if(comment == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
         }
         //获取获得积分的用户
-        Integer user1 =  comment.getUserId();
+        Integer user1 = comment.getUserId();
         User userget =  userRepository.findById(user1).orElse(null);
         if(userget == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);

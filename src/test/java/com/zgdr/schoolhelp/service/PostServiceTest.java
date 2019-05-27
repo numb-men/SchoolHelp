@@ -36,6 +36,8 @@ public class PostServiceTest {
 
     private HeadImage headImage;
 
+    private HeadImage headImage1;
+
     @Resource
     private PostRepository postRepository;
 
@@ -60,42 +62,47 @@ public class PostServiceTest {
     @Before
     public void setup(){
 
-        user = new User("name", "12345678901", "12345678", true, new Date(),
+        user = new User("name", "13956708901", "123456d78", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
-        user1 = new User("name", "12345678903", "12345378", true, new Date(),
+        user1 = new User("name", "13605678903", "12345378", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
         user = userRepository.saveAndFlush(user);
         user1 = userRepository.saveAndFlush(user1);
         headImage = new HeadImage("yudguysgueyf",user.getId());
-        headImageRepository.save(headImage);
-        comment = new Comment(user.getId(),16,"sadas","halo",new Date(),null);
+        headImage1 = new HeadImage("yudguysgueyf",user1.getId());
+        headImage = headImageRepository.save(headImage);
+        headImage1 = headImageRepository.save(headImage1);
+        comment = new Comment(user.getId(),16,"sadas","halo",new Date(),headImage1.getImageUrl());
         post = new Post(user.getId(),223,"SCHAVCHAACSCY","CASVCYUAGUCYGUACAWSCW",
-                0,user.getName(),0, 0,0,0,
-                "1",new Date(),null);
+                10,user.getName(),0, 0,0,0,
+                "1",new Date(),headImage.getImageUrl());
+
+
     }
     @After
     public void delete(){
         userRepository.delete(user);
         userRepository.delete(user1);
         headImageRepository.delete(headImage);
+        headImageRepository.delete(headImage1);
     }
 
     @Test
     public void  createComment(){
-        comment = postService.createComment(comment,user.getId());
+       Comment comment1 = postService.createComment(comment,user.getId());
         Assert.assertEquals("halo",
-                commentRepository.findById(comment.getCommentId()).orElse(null).getCommentContent());
-        commentRepository.delete(comment);
+                commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
+        commentRepository.delete(comment1);
     }
 
     @Test
     public  void createPost(){
-        post=postService.createPost(post, user.getId(),null);
+       Post post1=postService.createPost(post, user.getId(),null);
         Assert.assertEquals("CASVCYUAGUCYGUACAWSCW",
                 postRepository.findByPostIdIn(post.getPostId()).getContent());
-        postRepository.delete(post);
+        postRepository.delete(post1);
     }
 
     @Test
@@ -105,93 +112,94 @@ public class PostServiceTest {
 
     @Test
     public void readPostById(){
-        post=postService.createPost(post, user.getId(),null);
+       Post post1=postService.createPost(post, user.getId(),null);
         Assert.assertEquals("CASVCYUAGUCYGUACAWSCW",
                 postService.readPostById(post.getPostId()).getContent());
-        postRepository.delete(post);
+        postRepository.delete(post1);
     }
 
     @Test
     public  void addPostApproval(){
-        post=postService.createPost(post, user.getId(),null);
-        Approval approval = new Approval(user.getId(),post.getPostId(),new Date());
+        Post post1=postService.createPost(post, user.getId(),null);
+        Approval approval = new Approval(user.getId(),post1.getPostId(),new Date());
         postService.addPostApproval(approval,user.getId());
-        Approval approval1 = approvalRepository.findByPostIdAndUserId(post.getPostId(), user.getId());
+        Approval approval1 = approvalRepository.findByPostIdAndUserId(post1.getPostId(), user.getId());
        //如果approval1为null，删除会报错
         approvalRepository.delete(approval1);
-        postRepository.delete(post);
+        postRepository.delete(post1);
     }
 
-    @Test(expected = PostException.class)//期望抛出异常
+    @Test
     public  void deletePostById(){
-        post = postService.createPost(post, user.getId(),null);
-        postService.deletePostById(post.getPostId(), user.getId());
-        postRepository.findById(post.getPostId()).orElse(null);
+        Post post1 = postService.createPost(post, user.getId(),null);
+        postService.deletePostById( user.getId(), post1.getPostId());
+        Assert.assertEquals(null,  postRepository.findById(post1.getPostId()).orElse(null));
     }
 
     @Test
     public void updatePost(){
-        post = postService.createPost(post, user.getId(),null);
-        postService.updatePost(post.getPostId(), "hkashcjuhackhakschk");
-        post = postRepository.findByPostIdIn(post.getPostId());
-        Assert.assertEquals("hkashcjuhackhakschk", post.getContent());
-        postRepository.delete(post);
+       Post post1 = postService.createPost(post, user.getId(),null);
+        postService.updatePost(post1.getPostId(), "hkashcjuhackhakschk");
+        post1 = postRepository.findByPostIdIn(post.getPostId());
+        Assert.assertEquals("hkashcjuhackhakschk", post1.getContent());
+        postRepository.delete(post1);
     }
 
    @Test
     public void createReport(){
-        post = postService.createPost(post, user.getId(),null);
-        Report report = new Report(user.getId(),post.getPostId(),"bascjhasbcjhabsc",new Date());
+        Post post1 = postService.createPost(post, user.getId(),null);
+        Report report = new Report(user.getId(),post1.getPostId(),"bascjhasbcjhabsc",new Date());
         postService.createReport(report,user.getId());
-        Report report1= reportRepository.findByUserIdAndPostId(user.getId(), post.getPostId());
+        Report report1= reportRepository.findByUserIdAndPostId(user.getId(), post1.getPostId());
         Assert.assertEquals("bascjhasbcjhabsc", report1.getReportDes());
         reportRepository.delete(report1);
-        postRepository.delete(post);
+        postRepository.delete(post1);
 
     }
 
     @Test
     public void getPostAndComment(){
-        post=postService.createPost(post, user.getId(),null);
-        comment.setPostId(post.getPostId());
+        Post post1 = postService.createPost(post, user.getId(),null);
+        comment.setPostId(post1.getPostId());
         comment = postService.createComment(comment,user.getId());
-        HashMap hashMap=postService.getPostAndComment(post.getPostId());
-        Post post1 = (Post) hashMap.get("post");
-        Assert.assertEquals("CASVCYUAGUCYGUACAWSCW", post1.getContent());
-        postRepository.delete(post);
+        HashMap hashMap=postService.getPostAndComment(post1.getPostId());
+        Post post2 = (Post) hashMap.get("post");
+        Assert.assertEquals("CASVCYUAGUCYGUACAWSCW", post2.getContent());
+        postRepository.delete(post1);
         commentRepository.delete(comment);
     }
 
     @Test
     public  void getListByKeyword(){
-        post=postService.createPost(post, user.getId(),null);
+        Post post1 = postService.createPost(post, user.getId(),null);
         String keyword = "UCYGUACAWSCW";
         List<Post> list = postService.findPostByKeyword(keyword);
-        for(Post post1:list){
-           Assert.assertEquals(false, post1.getContent().indexOf(keyword)==-1) ;
+        for(Post post2 : list){
+           Assert.assertEquals(false, post2.getContent().indexOf(keyword)==-1) ;
         }
-        postRepository.delete(post);
+        postRepository.delete(post1);
     }
 
     @Test
     public void findByPostType(){
-        post=postService.createPost(post, user.getId(),null);
+        Post post1 = postService.createPost(post, user.getId(),null);
         List<Post> postList = postService.findPostsByPostType(1);
-        for(Post post1:postList){
-            Assert.assertEquals("1", post1.getPostType());
+        for(Post post2 : postList){
+            Assert.assertEquals("1", post2.getPostType());
         }
-        postRepository.delete(post);
+        postRepository.delete(post1);
     }
 
     @Test
     public  void submitPost(){
-        post=postService.createPost(post, user.getId(),null);
-        comment.setPostId(post.getPostId());
+        Post post1=postService.createPost(post, user.getId(),null);
+        comment.setPostId(post1.getPostId());
         comment.setUserId(user1.getId());
-        comment = postService.createComment(comment,user.getId());
-        postService.sumbitPost(user.getId(),post.getPostId(), comment.getCommentId());
-        Assert.assertEquals("100",user.getPoints().toString());
-        postRepository.delete(post);
+        comment = postService.createComment(comment,user1.getId());
+        postService.sumbitPost(user.getId(),post1.getPostId(), comment.getCommentId());
+        user1 = userRepository.findById(user1.getId()).orElse(null);
+        Assert.assertEquals("110",user1.getPoints().toString());
+        postRepository.delete(post1);
         commentRepository.delete(comment);
     }
 }
