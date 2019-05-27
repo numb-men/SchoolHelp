@@ -456,7 +456,7 @@ public class UserController {
         if (messageContent != null && messageContent.equals("")){
             throw new UserException(UserResultEnum.MESSAGE_CANT_NULL);
         }
-        return Result.success(userService.newMessage(accept,messageContent,send));
+        return Result.success(userService.newMessage(accept, messageContent,send));
     }
 
     /**

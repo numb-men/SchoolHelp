@@ -10,10 +10,10 @@
     </parent>
     <groupId>com.zgdr</groupId>
     <artifactId>schoolhelp</artifactId>
-    <version>0.1.8</version>
+    <version>1.0.2</version>
     <name>schoolhelp</name>
     <description>SchoolHelp</description>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <java.version>1.8</java.version>
@@ -25,22 +25,22 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <!--部署环境-->
             <!-- 移除嵌入式tomcat插件 -->
-            <!--<exclusions>-->
-                <!--<exclusion>-->
-                    <!--<groupId>org.springframework.boot</groupId>-->
-                    <!--<artifactId>spring-boot-starter-tomcat</artifactId>-->
-                <!--</exclusion>-->
-            <!--</exclusions>-->
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
             <!---->
         </dependency>
 
         <!--部署环境，添加servlet依赖-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.tomcat</groupId>-->
-            <!--<artifactId>tomcat-servlet-api</artifactId>-->
-            <!--<version>8.0.36</version>-->
-            <!--<scope>provided</scope>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-servlet-api</artifactId>
+            <version>8.0.36</version>
+            <scope>provided</scope>
+        </dependency>
         <!---->
 
         <dependency>
@@ -118,12 +118,16 @@
     </dependencies>
 
     <build>
+        <!--  注释spring-boot-maven-plugin原因： 因为这个插件会重新打包(repackage),
+        打包成spring-boot可通过-jar形式运行的jar或war包，并且把原来maven打包重名称成.war.original结尾
+        部署环境减小包的大小可以进行注释-->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
         </plugins>
+        <!---->
     </build>
 
 </project>

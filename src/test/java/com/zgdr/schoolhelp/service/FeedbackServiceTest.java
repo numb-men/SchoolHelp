@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  * @version 1.0
  * @since 2019/4/25
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class FeedbackServiceTest {
