@@ -1,10 +1,13 @@
 package com.zgdr.schoolhelp.domain;
 
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -32,10 +35,12 @@ public class Post {
 
     /* 标题 */
     @NotBlank
+    @Length(min = 5, max = 20, message = "标题应在5-20字之间")
     private String  title;
 
     /* 贴子内容*/
    @NotBlank
+   @Length(min = 15, max = 1000, message = "帖子内容应在15-1000字之间")
     private String content;
 
     /* 悬赏积分 */
