@@ -31,7 +31,9 @@ public enum PostResultEnum implements ResultEnum {
     NOT_COMMENT(-21,"请输入评论内容"),
 
     /* 发帖图片多余九张 */
-    TO_MUCH_IMAGE(-54,"最多只能添加9张图片");
+    TO_MUCH_IMAGE(-54,"最多只能添加9张图片"),
+
+    REPEAT_REPORT(-56,"你已经举报过该帖子");
     ;
 
     private Integer code;
