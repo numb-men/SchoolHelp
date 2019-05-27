@@ -141,7 +141,7 @@ public class UserServiceTest {
      * @since 2019/5/24
      **/
     public Report newReport(){
-        return new Report(1,1,"帖子涉及违法营销信息",new Date());
+        return new Report(1,1,"帖vhd csjhdvbjhsdvbsjhdbvjsbdv 子涉及违法营销信息",new Date());
     }
 
     @Before
@@ -562,7 +562,7 @@ public class UserServiceTest {
         user3 = userService.createUser(user3);
         Post post = newPost();
         post = postRepository.save(post);
-        Integer report1Id =  userService.reportPost(user3.getId(),post.getPostId(),"消息内容存在问题");
+        Integer report1Id =  userService.reportPost(user3.getId(),post.getPostId(),"消息内veiuhruaivbaerb vear容存在问题");
         Assert.assertEquals(report1Id,reportRepository.getOne(report1Id).getReportId());
         userRepository.delete(user1);
         userRepository.delete(user2);

@@ -229,8 +229,7 @@ public class PostController {
     public Result approval(@Valid Approval approval,BindingResult bindingResult,
                          HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        postService.addPostApproval(approval,userId);
-        return Result.success(null);
+        return Result.success(postService.addPostApproval(approval,userId));
     }
     
     /**
@@ -239,15 +238,11 @@ public class PostController {
       * @since 2019/4/25
       *token
       * @param comment 评论信息
-      * @param bindingResult 表单验证结果
       */
     @UserLoginToken
     @PostMapping(value = "/comment")
-    public Result comment(@Valid Comment comment ,BindingResult bindingResult,
+    public Result comment(@Valid Comment comment ,
                         HttpServletRequest httpServletRequest){
-        if(bindingResult.hasErrors()){
-            throw new PostException(PostResultEnum.NOT_COMMENT);
-        }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createComment(comment,userId);
         return Result.success(null);
@@ -259,15 +254,11 @@ public class PostController {
       * @since 2019/4/25
       *
       * @param report 举报信息
-      * @param bindingResult 表单验证结果
       */
     @UserLoginToken
     @PostMapping(value = "/report")
-    public Result report(@Valid Report report ,BindingResult bindingResult,
+    public Result report(@Valid Report report,
                        HttpServletRequest httpServletRequest){
-        if(bindingResult.hasErrors()){
-            throw new PostException(PostResultEnum.NO_DES);
-        }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createReport(report,userId);
         return Result.success(null);
@@ -299,7 +290,7 @@ public class PostController {
      * @since 2019/4/25
      *
      * @param post 帖子信息
-     * @param bindingResult 表单验证结果
+     * @param image 图片数组
      * @return  贴子对象
      */
 
@@ -307,12 +298,8 @@ public class PostController {
     @PostMapping(value = "")
     public Result creatPost(@Valid Post post,
                             @RequestParam(required = false) List<MultipartFile> image,
-                            BindingResult bindingResult,
                             HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        if(bindingResult.hasErrors()){
-            return Result.error(PostResultEnum.NODE);
-        }
         if (postService.isRightPoints(post,userId)){
             return Result.error(PostResultEnum.MORE_POINTS);
         }

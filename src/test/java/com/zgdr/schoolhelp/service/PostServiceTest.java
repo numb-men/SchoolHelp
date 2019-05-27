@@ -151,10 +151,10 @@ public class PostServiceTest {
    @Test
     public void createReport(){
         Post post1 = postService.createPost(post, user.getId(),null);
-        Report report = new Report(user.getId(),post1.getPostId(),"bascjhasbcjhabsc",new Date());
+        Report report = new Report(user.getId(),post1.getPostId(),"bascvbsjbvkbvjhdfjhasbcjhabsc",new Date());
         postService.createReport(report,user.getId());
         Report report1= reportRepository.findByUserIdAndPostId(user.getId(), post1.getPostId());
-        Assert.assertEquals("bascjhasbcjhabsc", report1.getReportDes());
+        Assert.assertEquals("bascvbsjbvkbvjhdfjhasbcjhabsc", report1.getReportDes());
         reportRepository.delete(report1);
         postRepository.delete(post1);
 

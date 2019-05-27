@@ -172,25 +172,26 @@ public class PostService {
      * @param userId 用户id
 
      */
-    public void addPostApproval(Approval approval, Integer userId) {
-        List<Approval> approvalList = approvalRepository.findAll();
+    public String addPostApproval(Approval approval, Integer userId) {
         Post post = postRepository.findById(approval.getPostId()).orElse(null);
         if (post == null) {
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-        for (Approval approval1 : approvalList) {
-            if ( (approval1.getPostId().equals(approval.getPostId())) &&(approval1.getUserId().equals(userId))) {
-                post.setApprovalNum(post.getApprovalNum() - 1);
-                approvalRepository.deleteById(approval1.getApprovalId());
-            }
+        Approval approval1 = approvalRepository.findByPostIdAndUserId(approval.getPostId(), userId);
+        if(approval1!=null){
+            post.setApprovalNum(post.getApprovalNum() - 1);
+            approvalRepository.deleteById(approval1.getApprovalId());
+            postRepository.save(post);
+            return "取消点赞";
+        }else{
+            approval.setUserId(userId);
+            post.setApprovalNum(post.getApprovalNum() + 1);
+            postRepository.save(post);
+            Date date = new Date();
+            approval.setApprovalTime(date);
+            approvalRepository.save(approval);
+            return "点赞成功";
         }
-
-        approval.setUserId(userId);
-        post.setApprovalNum(post.getApprovalNum() + 1);
-        postRepository.save(post);
-        Date date = new Date();
-        approval.setApprovalTime(date);
-        approvalRepository.save(approval);
     }
 
 
@@ -257,6 +258,9 @@ public class PostService {
     public void  createReport(Report report, Integer userId){
         if (report.getReportDes() == null){
             throw new PostException(PostResultEnum.NO_DES);
+        }
+        if(reportRepository.findByUserIdAndPostId(userId, report.getPostId())!=null){
+            throw new PostException(PostResultEnum.REPEAT_REPORT);
         }
         report.setUserId(userId);
         Post post=postRepository.findById(report.getPostId()).orElse(null);

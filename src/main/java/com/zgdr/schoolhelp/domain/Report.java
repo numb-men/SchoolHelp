@@ -2,6 +2,8 @@ package com.zgdr.schoolhelp.domain;
 
 
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,6 +33,7 @@ public class Report {
 
     /* 举报描述 */
     @NotBlank
+    @Length(min = 20, max = 200, message = "举报内容应在应在20-200字之间")
     private String reportDes;
 
     /* 举报日期*/
