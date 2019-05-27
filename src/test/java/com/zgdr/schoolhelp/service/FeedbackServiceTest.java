@@ -50,8 +50,6 @@ public class FeedbackServiceTest {
         feedback = new Feedback(userRepository.saveAndFlush(user).getId(),
                 "vsdjhvbdjsjhdvbhsgvdhgs", false,  new Date());
         feedback = feedbackRepository.saveAndFlush(feedback);
-        logger.info(user.toString());
-        logger.info(feedback.toString());
     }
 
     @After
@@ -79,6 +77,7 @@ public class FeedbackServiceTest {
     @Test
     public void getFeedbackById() {
         Feedback feedback1=feedbackService.getFeedbackById(feedback.getFeedbackId(),user.getId());
-       logger.info(feedback1.getFeedbackContent());
+     //  logger.info(feedback1.getFeedbackContent());
+        Assert.assertEquals("vsdjhvbdjsjhdvbhsgvdhgs", feedback1.getFeedbackContent());
     }
 }

@@ -48,4 +48,6 @@ public interface ApprovalRepository extends JpaRepository<Approval, Integer>{
      * @since 2019/4/28
      **/
     List<Approval> findAllByUserId(Integer userId);
+
+    Approval findByPostIdAndUserId(Integer postId, Integer userId);
 }

@@ -3,13 +3,20 @@ package com.zgdr.schoolhelp.service;
 import com.zgdr.schoolhelp.domain.*;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.PostResultEnum;
+import com.zgdr.schoolhelp.enums.UserResultEnum;
 import com.zgdr.schoolhelp.exception.GlobalException;
 import com.zgdr.schoolhelp.exception.PostException;
+import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.zgdr.schoolhelp.utils.UploadImageUtil;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.web.multipart.MultipartFile;
+import javax.annotation.Resource;
 import java.util.*;
 
 /**
@@ -25,21 +32,26 @@ import java.util.*;
 @Service
 public class PostService {
 
-    @Autowired
+    @Resource
     private PostRepository postRepository;
 
-    @Autowired
+    @Resource
     private CommentRepository commentRepository;
 
-    @Autowired
+    @Resource
     private ReportRepository reportRepository;
 
-    @Autowired
+    @Resource
     private ApprovalRepository approvalRepository;
 
-
-    @Autowired
+    @Resource
     private UserRepository userRepository;
+
+    @Resource
+    private HeadImageRepository headImageRepository;
+
+    @Resource
+    private PostImageRepository postImageRepostiry;
 
 
     /**
@@ -47,7 +59,6 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param
      * @return List <post>
      */
     public List<Post> getAll() {
@@ -55,19 +66,35 @@ public class PostService {
     }
 
     /**
-     * 创建贴子贴子
+     * 分页查询，每次返回10条按时间最新的帖子
+     * @author yangji
+     * @since 2019/5/25
+     *
+     * @return  Page<Post>
+     */
+    public Page<Post> getPostPage(Integer num, Integer postType){
+        Sort sort = new Sort(Sort.Direction.DESC, "issueTime");
+        Pageable pageable = PageRequest.of(num,10, sort);
+        return postRepository.findPostsByPostType(pageable,postType.toString());
+    }
+
+    /**
+     * 创建贴子
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param post
+     * @param post 帖子信息
      * @return post
      */
-    public Post createPost(Post post, Integer userId){
-//        积分计算的另一种方式
-
+    public Post createPost(Post post, Integer userId, List<MultipartFile> image){
+        //积分计算的另一种方式
         User user = userRepository.findById(userId).orElse(null);
+        if(user == null){
+            throw new UserException(UserResultEnum.ID_NOT_FOUND);
+        }
         user.setPoints(user.getPoints()-post.getPoints());
-        user.setPostNum(user.getPostNum() + 1); // 用户发帖数+1
+        // 用户发帖数+1
+        user.setPostNum(user.getPostNum() + 1);
         userRepository.save(user);
         post.setUserName(user.getName());
         post.setPoints(post.getPoints());
@@ -80,7 +107,23 @@ public class PostService {
         post.setHelpUserId(-1);
         Date date = new Date();
         post.setIssueTime(date);
-        return postRepository.save(post);
+        String headImage = headImageRepository.findByUserId(userId).getImageUrl();
+        if(headImage == null){
+            throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
+        }else{
+            post.setHeadImageUrl(headImage);
+        }
+        post=postRepository.save(post);
+        if(image != null){
+            if(image.size() > 9){
+                throw new PostException(PostResultEnum.TO_MUCH_IMAGE);
+            }
+            UploadImageUtil uploadImageUtil=new UploadImageUtil();
+            for(MultipartFile postImage : image){
+                postImageRepostiry.save(new PostImage(post.getPostId(), uploadImageUtil.uploadImage(postImage)));
+            }
+        }
+        return post;
     }
 
     /**
@@ -123,31 +166,29 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param approval
-     * @return App
+     * @param approval 点赞信息
+     * @param userId 用户id
+
      */
-    public Integer addPostApproval(Approval approval, Integer userId) {
+    public void addPostApproval(Approval approval, Integer userId) {
         List<Approval> approvalList = approvalRepository.findAll();
         Post post = postRepository.findById(approval.getPostId()).orElse(null);
         if (post == null) {
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
         for (Approval approval1 : approvalList) {
-            if ( ((int)approval1.getPostId()==(int)approval.getPostId()) &&((int)approval1.getUserId()==(int)userId)) {
+            if ( (approval1.getPostId().equals(approval.getPostId())) &&(approval1.getUserId().equals(userId))) {
                 post.setApprovalNum(post.getApprovalNum() - 1);
                 approvalRepository.deleteById(approval1.getApprovalId());
-                return null;
             }
         }
 
-        approval.setUserId(userId);//
-
+        approval.setUserId(userId);
         post.setApprovalNum(post.getApprovalNum() + 1);
         postRepository.save(post);
         Date date = new Date();
         approval.setApprovalTime(date);
         approvalRepository.save(approval);
-        return null ;
     }
 
 
@@ -158,7 +199,6 @@ public class PostService {
      *
      * @param userId 用户id
      * @param postId 贴子id
-     * @return void
      */
     @Transactional
     public void deletePostById(Integer userId, Integer postId){
@@ -169,6 +209,7 @@ public class PostService {
         reportRepository.deleteByPostId(postId);
         commentRepository.deleteByPostId(postId);
         approvalRepository.deleteByPostId(postId);
+        postImageRepostiry.deleteAllByPostId(postId);
         postRepository.delete(post);
     }
 
@@ -177,13 +218,14 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param postId
+     * @param postId 帖子id
      * @param  newContent 更新内容
-     * @return void
      */
     public void updatePost(Integer postId , String newContent){
-
         Post post = postRepository.findById(postId).orElse(null);
+        if(post==null){
+            throw new PostException(PostResultEnum.NOT_FOUND);
+        }
         post.setContent(newContent);
         postRepository.save(post);
     }
@@ -197,10 +239,7 @@ public class PostService {
      * @return Boolean
      */
     public Boolean isnull(Integer id){
-        if(postRepository.findById(id).orElse(null) == null){
-            return true;
-        }
-        return false;
+        return postRepository.findById(id).orElse(null) == null;
     }
 
     /**
@@ -208,14 +247,13 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param report
-     * @return void
+     * @param report 举报内容
      */
     public void  createReport(Report report, Integer userId){
         if (report.getReportDes() == null){
             throw new PostException(PostResultEnum.NO_DES);
         }
-        report.setUserId(userId);//
+        report.setUserId(userId);
         Post post=postRepository.findById(report.getPostId()).orElse(null);
         if(post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
@@ -233,16 +271,19 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param comment
-     * @return void
+     * @param comment 要新建评论信息
+     * @return Comment 存到数据库后返回的评论信息（多了一个评论的id）
      */
-    public void  createComment(Comment comment, Integer userId){
+    public Comment  createComment(Comment comment, Integer userId){
         comment.setUserId(userId);
         Post post=postRepository.findById(comment.getPostId()).orElse(null);
         if(post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
         User user = userRepository.findById(userId).orElse(null);
+        if (user==null){
+            throw new UserException(UserResultEnum.ID_NOT_FOUND);
+        }
         user.setCommentNum(user.getCommentNum() + 1);
         post.setCommentNum((post.getCommentNum()+1));
         postRepository.save(post);
@@ -250,7 +291,13 @@ public class PostService {
         Date date = new Date();
         comment.setCommentUserName(user.getName());
         comment.setCommentTime(date);
-        commentRepository.save(comment);
+        String headImage = headImageRepository.findByUserId(userId).getImageUrl();
+        if(headImage == null){
+            throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
+        }else{
+            comment.setHeadImageUrl(headImage);
+        }
+        return commentRepository.save(comment);
     }
 
     /**
@@ -258,7 +305,7 @@ public class PostService {
       * @author fishkk
       * @since 2019/4/25
       *
-      * @param  postId
+      * @param  postId 帖子id
       * @return  相关的set或者list
       */
     public List<Comment> getCommentByPostID(Integer postId){
@@ -283,16 +330,25 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/25
      *
-     * @param  id
+     * @param  id 帖子的id
      * @return  HashMap
      */
     public HashMap getPostAndComment(Integer id){
         Post post = postRepository.findById(id).orElse(null);
+
+        List<PostImage> postimage = postImageRepostiry.findByPostId(id);
+        List<String> imageUrl = new ArrayList<>();
+        if(!postimage.isEmpty()){
+            for (PostImage i : postimage){
+                imageUrl.add(i.getImageUrl());
+            }
+        }
         HashMap hashMap = new HashMap();
         List<Comment> commentList = this.getCommentByPostID(id);
         post.setViewNum(post.getViewNum()+1);
         hashMap.put("comments",commentList);
         hashMap.put("post",post);
+        hashMap.put("postImages", imageUrl);
         postRepository.save(post);
         return hashMap;
     }
@@ -303,7 +359,7 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/25
      *
-     * @param  num
+     * @param  num 帖子数
      * @return  返回最新的num条贴子
      */
     public List<Post>  getLastPostByNum(Integer num){
@@ -334,19 +390,27 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/24
      *
-     * @param userId
-     * @param  postId
-     * @param  commentId
-     * @return
+     * @param userId 用户id
+     * @param  postId 帖子id
+     * @param  commentId 评论的id
      */
     public void sumbitPost(Integer userId ,Integer postId ,Integer commentId){
 
         Comment comment = commentRepository.findById(commentId).orElse(null);
-        //       获取获得积分的用户
+        if(comment == null){
+            throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
+        }
+        //获取获得积分的用户
         Integer user1 =  comment.getUserId();
         User userget =  userRepository.findById(user1).orElse(null);
-//        获取贴子积分
+        if(userget == null){
+            throw new UserException(UserResultEnum.ID_NOT_FOUND);
+        }
+        //获取贴子积分
         Post post = postRepository.findById(postId).orElse(null);
+        if(post == null){
+            throw new PostException(PostResultEnum.NOT_FOUND);
+        }
         Integer points = post.getPoints();
         userget.setPoints(userget.getPoints()+points);
         post.setPoints(0);
@@ -361,15 +425,15 @@ public class PostService {
      * @author fishkk
      * @since 2019/4/25
      *
-     * @param  userId
+     * @param  userId 用户id
      * @return  Boolean
      */
     public Boolean isRightPoints(Post post, Integer userId){
         User user = userRepository.findById(userId).orElse(null);
-        if(user.getPoints()<post.getPoints()){
-            return true;
+        if(user == null){
+            throw new UserException(UserResultEnum.ID_NOT_FOUND);
         }
-        return false;
+        return user.getPoints()<post.getPoints();
     }
 
     public List<String> hotWord(){

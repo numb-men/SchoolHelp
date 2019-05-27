@@ -22,7 +22,6 @@ public class Post {
     /* 贴子ID */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO) //使用默认生成方式（MySQL）：自增
-
     private Integer postId;
 
     /* 发帖者ID */
@@ -63,6 +62,9 @@ public class Post {
 
     /* 发帖时间 */
     private Date issueTime ;
+
+    /* 发帖人头像的url */
+    private String headImageUrl;
 
     public String getUserName() {
         return userName;
@@ -168,13 +170,21 @@ public class Post {
         this.helpUserId = helpUserId;
     }
 
+    public String getHeadImageUrl() {
+        return headImageUrl;
+    }
+
+    public void setHeadImageUrl(String headImageUrl) {
+        this.headImageUrl = headImageUrl;
+    }
+
     public Post() {
     }
 
-    public Post(Integer userId, Integer helpUserId,
-                @NotBlank String title, @NotBlank String content, @NotNull Integer points,
-                String userName, Integer viewNum, Integer approvalNum, Integer commentNum,
-                Integer reportNum, String postType, Date issueTime) {
+    public Post(Integer userId, Integer helpUserId, @NotBlank String title,
+                @NotBlank String content, @NotNull Integer points, String userName,
+                Integer viewNum, Integer approvalNum,
+                Integer commentNum, Integer reportNum, String postType, Date issueTime, String headImageUrl) {
         this.userId = userId;
         this.helpUserId = helpUserId;
         this.title = title;
@@ -187,6 +197,7 @@ public class Post {
         this.reportNum = reportNum;
         this.postType = postType;
         this.issueTime = issueTime;
+        this.headImageUrl = headImageUrl;
     }
 
     @Override
@@ -205,6 +216,7 @@ public class Post {
                 ", reportNum=" + reportNum +
                 ", postType='" + postType + '\'' +
                 ", issueTime=" + issueTime +
+                ", headImageUrl='" + headImageUrl + '\'' +
                 '}';
     }
 }

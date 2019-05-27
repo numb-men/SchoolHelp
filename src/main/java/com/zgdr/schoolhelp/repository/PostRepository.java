@@ -2,6 +2,8 @@ package com.zgdr.schoolhelp.repository;
 
 
 import com.zgdr.schoolhelp.domain.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -24,7 +26,10 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      * @return    List<Post>
      */
     @Query(value = "SELECT * FROM post WHERE post_type=?1", nativeQuery = true)
-    public List<Post> findPostsByPostType(Integer id);
+    List<Post> findPostsByPostType(Integer id);
+
+    Page <Post> findPostsByPostType(Pageable pageable, String postType);
+
 
 
     /**
@@ -54,6 +59,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
     /*星夜、痕添加*/
     List<Post> findAllByUserId(Integer userId);
+
 
 
 

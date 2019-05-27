@@ -1,9 +1,11 @@
 package com.zgdr.schoolhelp.service;
 
 import ch.qos.logback.core.util.StringCollectionUtil;
+import com.zgdr.schoolhelp.domain.HeadImage;
 import com.zgdr.schoolhelp.domain.User;
 import com.zgdr.schoolhelp.enums.AccountResultEnum;
 import com.zgdr.schoolhelp.exception.AccountException;
+import com.zgdr.schoolhelp.repository.HeadImageRepository;
 import com.zgdr.schoolhelp.repository.UserRepository;
 import com.zgdr.schoolhelp.utils.StringUtil;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,9 @@ public class AccountService {
     @Resource
     private TokenService tokenService;
 
+    @Resource
+    private HeadImageRepository headImageRepository;
+
     /**
      * 注册新用户
      * @author hengyumo
@@ -41,6 +46,7 @@ public class AccountService {
      */
     @Transactional
     public String register(String phone, String password){
+        String image = "ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05";
         if (! StringUtil.isGoodPasseord(password)){
             throw new AccountException(AccountResultEnum.NOT_GOOD_PASSWORD);
         }
@@ -50,7 +56,9 @@ public class AccountService {
             user.setName("用户" + StringUtil.getRandomString(10));
             user.setPhone(phone);
             user.setPassword(password);
-            userRepository.saveAndFlush(user);
+            user = userRepository.saveAndFlush(user);
+            //为每个新注册用户设置一个默认头像
+            headImageRepository.save(new HeadImage(image, user.getId()));
         } else {
             throw new AccountException(AccountResultEnum.HAS_REGISTERED);
         }

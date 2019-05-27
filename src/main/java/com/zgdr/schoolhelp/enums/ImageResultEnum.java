@@ -9,9 +9,10 @@ package com.zgdr.schoolhelp.enums;
  * @since 2019/5/2
  */
 public enum ImageResultEnum implements ResultEnum{
-    EMPTY_FILE(-1,"文件为空"),
-    NO_POWER(-2, "你没有权限"),
-    NO_RESOURCE(-3,"还未上传资源");
+    /*枚举*/
+    EMPTY_FILE(-15,"文件为空"),
+    NO_POWER(-16, "你没有权限"),
+    NO_RESOURCE(-17,"还未上传资源");
 
     private Integer code;
 

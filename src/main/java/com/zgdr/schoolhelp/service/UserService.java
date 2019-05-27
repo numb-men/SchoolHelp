@@ -415,7 +415,7 @@ public class UserService {
         if (user == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);
         }
-        if (attentionUserId == beAttentionUserId )
+        if (attentionUserId.equals(beAttentionUserId))
         {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
         }
@@ -436,7 +436,7 @@ public class UserService {
      * @return  null
      */
     public Object deleteUserAttention (Integer attentionUserId,Integer beAttentionUserId){
-        if (attentionUserId == beAttentionUserId )
+        if (attentionUserId.equals(beAttentionUserId))
         {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
         }
@@ -457,7 +457,7 @@ public class UserService {
      * @return Integer Message列表
      **/
     public Integer newMessage(Integer accept,String messageContent,Integer send){
-        if (accept == send){
+        if (accept.equals(send)){
             throw new UserException(UserResultEnum.CANT_SEND_SELF);
         }
         User user =  userRepository.findById(accept).orElse(null);
@@ -482,17 +482,20 @@ public class UserService {
      * @return Integer Report列表
      **/
 
-    public Integer reportPost(Integer userId,Integer postId){
+    public Integer reportPost(Integer userId,Integer postId,String reportDes){
         if (postRepository.findByPostIdIn(postId) == null){
             throw new UserException(UserResultEnum.CAN_FAND_POST);
         }
         if (reportRepository.findByUserIdAndPostId(userId,postId)!=null){
             throw new UserException(UserResultEnum.HANAV_REPORT);
         }
-
+        if (reportDes != null && "".equals(reportDes)){
+            throw new UserException(UserResultEnum.REPORT_NULL);
+        }
         Report report = new Report();
         report.setUserId(userId);
         report.setPostId(postId);
+        report.setReportDes(reportDes);
         reportRepository.saveAndFlush(report);
         return report.getReportId();
     }
@@ -569,13 +572,13 @@ public class UserService {
             }
         }
         int []num = new int[17];
-        int []W = new int[]{7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2,1};
+        int []w = new int[]{7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2,1};
         int nums = 0;
         if (f==1)
         {
             for (int i=0;i<17;i++){
                 num[i] = chars[i] - '0';
-                nums = nums  +  num[i] * W[i];
+                nums = nums  +  num[i] * w[i];
             }
             if (chars[17] == 'x'){
                 nums = nums + 10;
