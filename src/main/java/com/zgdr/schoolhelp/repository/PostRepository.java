@@ -26,7 +26,7 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
      * @return    List<Post>
      */
     @Query(value = "SELECT * FROM post WHERE post_type=?1", nativeQuery = true)
-    List<Post> findPostsByPostType(Integer id);
+    List<Post> findPostsByPostType(String id);
 
     Page <Post> findPostsByPostType(Pageable pageable, String postType);
 
