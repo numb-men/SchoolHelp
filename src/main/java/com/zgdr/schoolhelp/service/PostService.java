@@ -107,6 +107,7 @@ public class PostService {
         post.setHelpUserId(-1);
         Date date = new Date();
         post.setIssueTime(date);
+        System.out.println(headImageRepository.findByUserId(userId));
         String headImage = headImageRepository.findByUserId(userId).getImageUrl();
         if(headImage == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);

@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2019/4/17
  * @version 1.0
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试

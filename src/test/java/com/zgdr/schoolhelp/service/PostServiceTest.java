@@ -19,7 +19,7 @@ import java.util.List;
  * @创建者 fishkk
  * @创建时间 描述
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class PostServiceTest {
