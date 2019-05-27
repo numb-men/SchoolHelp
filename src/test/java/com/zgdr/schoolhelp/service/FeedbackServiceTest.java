@@ -44,7 +44,7 @@ public class FeedbackServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        user = new User("name", "12345678901", "12345678", true, new Date(),
+        user = new User("name", "13444678901", "12345678", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());;
         feedback = new Feedback(userRepository.saveAndFlush(user).getId(),
@@ -57,6 +57,7 @@ public class FeedbackServiceTest {
         userRepository.delete(user);
         feedbackRepository.delete(feedback);
     }
+
     @Test
     public void getAllFeedback() {
         Assert.assertEquals(feedbackRepository.findAll().toString(), feedbackService.getAllFeedback(user.getId()).toString());

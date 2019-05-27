@@ -64,13 +64,13 @@ public class UserServiceTest {
 
 
     private User newUser(){
-        return new User("name", "12345678901", "12345678", true, new Date(),
+        return new User("name", "13009348901", "12345678dqw", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
     }
 
     private Post newPost(){
-        return new Post(1, 2, "帖子标题", "帖子内容", 12,"ads", 200,
+        return new Post(1, 2, "帖子vsvvs标题", "帖子内容sdvsvseddvs", 12,"ads", 200,
                 10, 3, 1, "求职", new Date(),"asd");
     }
 
@@ -131,7 +131,7 @@ public class UserServiceTest {
      * @since 2019/5/24
      **/
     public Comment newComment(){
-        return new Comment(1,1,"叫爸爸","用户1",new Date(),"可爱");
+        return new Comment(1,1,"叫爸爸","用户1",new Date(),"vsdvdfbfgn");
     }
 
     /**
@@ -141,23 +141,25 @@ public class UserServiceTest {
      * @since 2019/5/24
      **/
     public Report newReport(){
-        return new Report(1,1,"帖子涉及违法营销信息",new Date());
+        return new Report(1,1,"帖vhd csjhdvbjhsdvbsjhdbvjsbdv 子涉及违法营销信息",new Date());
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void start(){
+
+    }
+    @After
+    public void delete(){
+
     }
 
-    @After
-    public void tearDown() throws Exception {
-    //    userRepository.deleteAll();
-    }
 
     @Test
     public void Test1CreateUser() {
         User user = newUser();
         User returnUser = userService.createUser(user);
         Assert.assertEquals(user.getName(), returnUser.getName());
+        userRepository.delete(returnUser);
     }
 
     @Test
@@ -166,89 +168,97 @@ public class UserServiceTest {
         user.setPhone("12345678921");
         userService.createUser(user);
         user.setName("name2");
-        userService.updateUser(user);
+        user=userService.updateUser(user);
         Assert.assertEquals("name2", user.getName());
         logger.info(user.toString());
         logger.info("id = {}", user.getId());
+        userRepository.delete(user);
     }
 
     @Test
-    public void Test3ReadUser() {
+    public void Test3ReadUser(){
         User user = newUser();
         user.setPhone("12345678922");
-        userService.createUser(user);
+        user = userService.createUser(user);
         logger.info(user.toString());
         Assert.assertTrue(userService.readUserById(user.getId()).isOnline());
+        userRepository.delete(user);
     }
 
     @Test
     public void Test4DeleteUserById() {
-        List<User> users = userService.getAll();
-
-        for (User user : users){
-            userService.deleteUserById(user.getId());
-        }
+        User user = newUser();
+        user = userService.createUser(user);
+        userService.deleteUserById(user.getId());
+        Assert.assertEquals(null,userRepository.findById(user.getId()).orElse(null));
+        userRepository.delete(user);
     }
 
     @Test
     public void getHelpedPosts() {
         User user1 = newUser();
         User user2 = newUser();
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1=userService.createUser(user1);
+        user2=userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
         post.setHelpUserId(user2.getId());
-        postRepository.save(post);
+        post=postRepository.save(post);
         // 是否正确找出来helped的帖子id
         Assert.assertEquals(post.getPostId(), userService.getHelpedPosts(user2.getId()).get(0));
+        postRepository.delete(post);
+        userRepository.delete(user1);
+        userRepository.delete(user2);
     }
 
     @Test
     public void checkPower() {
         User user = newUser();
         user.setRole(false);
-        userService.createUser(user);
+        user=userService.createUser(user);
         Assert.assertFalse(userService.checkPower(user.getId()));
+        userRepository.delete(user);
     }
 
     @Test
     public void getUserPoints() {
         User user = newUser();
         user.setPoints(100);
-        userService.createUser(user);
+        user = userService.createUser(user);
         Assert.assertEquals((Integer)100, userService.getUserPoints(user.getId()));
+        userRepository.delete(user);
     }
 
     @Test
     public void addUserPoint() {
         User user = newUser();
         user.setPoints(100);
-        userService.createUser(user);
+        user = userService.createUser(user);
         userService.addUserPoint(user.getId(), -20);
         Assert.assertEquals((Integer)80, userService.getUserPoints(user.getId()));
+        userRepository.delete(user);
     }
 
     @Test
     public void getUserSetting() {
         User user = newUser();
-        userService.createUser(user);
+        user = userService.createUser(user);
         Setting setting = new Setting(user.getId(), "特殊", true, true);
         userService.updateUserSetting(user.getId(), setting);
-
         Assert.assertTrue(userService.getUserSetting(user.getId()).isHidePersonalData());
+        userRepository.delete(user);
     }
 
     @Test
     public void updateUserSetting() {
 
         User user = newUser();
-        userService.createUser(user);
+        user=userService.createUser(user);
         Setting setting = new Setting(user.getId(), "特殊", true, true);
         userService.updateUserSetting(user.getId(), setting);
-
         Assert.assertEquals("特殊", userService.getUserSetting(user.getId()).getTheme());
+        userRepository.delete(user);
     }
 
 
@@ -256,78 +266,91 @@ public class UserServiceTest {
     public void collectPost() {
         User user1 = newUser();
         User user2 = newUser();
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
         post.setHelpUserId(user2.getId());
-        postRepository.save(post);
+        post = postRepository.save(post);
         userService.collectPost(user1.getId(), post.getPostId());
         Integer postIdFound = userService.getUserCollects(user1.getId()).get(0);
         Assert.assertEquals(post.getPostId(), postIdFound);
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        postRepository.delete(post);
     }
 
     @Test
     public void getUserCollects() {
         User user1 = newUser();
         User user2 = newUser();
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
         post.setHelpUserId(user2.getId());
-        postRepository.save(post);
+        post = postRepository.save(post);
         userService.collectPost(user2.getId(), post.getPostId());
         Integer postIdFound = userService.getUserCollects(user2.getId()).get(0);
         Assert.assertEquals(post.getPostId(), postIdFound);
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        postRepository.delete(post);
     }
 
     @Test
     public void deleteUserCollect() {
         User user1 = newUser();
         User user2 = newUser();
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
         post.setHelpUserId(user2.getId());
-        postRepository.save(post);
+        post = postRepository.save(post);
         Integer collectId = userService.collectPost(user2.getId(), post.getPostId());
         userService.deleteUserCollect(user2.getId(), collectId);
         Integer foundSize = userService.getUserCollects(user2.getId()).size();
         // 删除后收藏的帖子数目为0
         Assert.assertEquals((Integer)0, foundSize);
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        postRepository.delete(post);
     }
 
     @Test
     public void getUserSearchHistory() {
         User user = newUser();
-        userService.createUser(user);
+        user = userService.createUser(user);
         Search search = new Search();
         search.setUserId(user.getId());
         search.setContent("暑假实习");
-        searchRepository.save(search);
+        search = searchRepository.save(search);
 
         String contentFound = userService.getUserSearchHistory(user.getId()).get(0);
         Assert.assertEquals("暑假实习", contentFound);
+        userRepository.delete(user);
+        searchRepository.delete(search);
     }
 
     @Test
     public void hideUserSearchHistory() {
         User user = newUser();
-        userService.createUser(user);
+        user = userService.createUser(user);
         Search search = new Search();
         search.setUserId(user.getId());
         search.setContent("暑假实习");
-        searchRepository.save(search);
+        search = searchRepository.save(search);
 
         userService.hideUserSearchHistory(user.getId());
         // 隐藏后返回的搜索历史为空
         Integer foundSize = userService.getUserSearchHistory(user.getId()).size();
         Assert.assertEquals((Integer)0, foundSize);
+        userRepository.delete(user);
+        searchRepository.delete(search);
     }
 
     /**
@@ -342,17 +365,18 @@ public class UserServiceTest {
         User user1 = newUser();
         User user2 = newUser();
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
-
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
         Post post = newPost();
         post.setUserId(user1.getId());
         post.setUserId(user2.getId());
-        postRepository.save(post);
-
+        post = postRepository.save(post);
         // 是否正确找出来当前用户的所有帖子id
         Assert.assertEquals(post.getPostId(),userService.getUserPosts(user2.getId()).get(0));
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        postRepository.delete(post);
     }
 
     /**
@@ -368,15 +392,16 @@ public class UserServiceTest {
         User user1 = newUser();
         User user2 = newUser();
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
-
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
         Approval approval = newApproval();
         approval.setUserId(user1.getId());
-        approvalRepository.save(approval);
-
+        approval = approvalRepository.save(approval);
         Assert.assertEquals(userService.getUserApprovalPosts(user1.getId()).get(0),approval.getPostId());
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        approvalRepository.delete(approval);
     }
 
 
@@ -394,17 +419,19 @@ public class UserServiceTest {
         User user1 = newUser();
         User user2 = newUser();
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
 
         Comment comment = newComment();
         comment.setUserId(user1.getId());
-        commentRepository.save(comment);
+        comment = commentRepository.save(comment);
 
         // 是否正确找出来评论过的帖子id
         Assert.assertEquals(userService.getUserCommentPosts(user1.getId()).get(0),comment.getPostId());
-
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        commentRepository.delete(comment);
     }
 
 
@@ -421,16 +448,18 @@ public class UserServiceTest {
         User user1 = newUser();
         User user2 = newUser();
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
 
         Report report = newReport();
         report.setUserId(user1.getId());
-        reportRepository.save(report);
+        report = reportRepository.save(report);
         // 是否正确找出来举报过的帖子id
         Assert.assertEquals(report.getPostId(),userService.getUserReportPosts(user1.getId()).get(0));
-
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        reportRepository.delete(report);
     }
 
     /**
@@ -443,16 +472,16 @@ public class UserServiceTest {
     @Test
     public void attentionUser(){
         User user1 = newUser();
-        User user3 = new User("name", "98765432112", "12345678", true, new Date(),
+        User user3 = new User("name", "13900760869", "12345678", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
 
-        userService.createUser(user1);
-        userService.createUser(user3);
-
+        user1 = userService.createUser(user1);
+        user3 = userService.createUser(user3);
         Integer attentionIdFound = userService.attentionUser(user1.getId(),user3.getId());
-
         Assert.assertEquals(attentionIdFound,attentionRepository.getOne(attentionIdFound).getAttentionId());
+        userRepository.delete(user1);
+        userRepository.delete(user3);
     }
 
 
@@ -468,17 +497,19 @@ public class UserServiceTest {
         User user1 = newUser();
         User user2 = newUser();
 
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
 
         Attention attention = newAttenton();
         attention.setAttentionUserId(user1.getId());
         attention.setAttentionUserId(user2.getId());
-        attentionRepository.save(attention);
+        attention = attentionRepository.save(attention);
 
         Assert.assertEquals(null, userService.deleteUserAttention(user2.getId(),attention.getBeAttentionUserId()));
-
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        attentionRepository.delete(attention);
 
     }
 
@@ -493,19 +524,21 @@ public class UserServiceTest {
     public void theNewMessage(){
         User user1 = newUser();
         User user2 = newUser();
-        User user3 = new User("name", "98765432112", "12345678", true, new Date(),
+        User user3 = new User("name", "13600760869", "12345678", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
-        userService.createUser(user3);
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
+        user3 = userService.createUser(user3);
 
 
         Integer message1Id =  userService.newMessage(user1.getId(),"user1创建成功",user3.getId());
 
         Assert.assertEquals(message1Id,messgaeRepository.getOne(message1Id).getMessageId());
-
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        userRepository.delete(user3);
     }
 
     /**
@@ -520,19 +553,21 @@ public class UserServiceTest {
     public void reportPost(){
         User user1 = newUser();
         User user2 = newUser();
-        User user3 = new User("name", "98765432112", "12345678", true, new Date(),
+        User user3 = new User("name", "13600760869", "12345678", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
-        user2.setPhone("12345678912");
-        userService.createUser(user1);
-        userService.createUser(user2);
-        userService.createUser(user3);
-
-
-        Integer report1Id =  userService.reportPost(user3.getId(),1,"消息内容存在问题");
-
+        user2.setPhone("13045678912");
+        user1 = userService.createUser(user1);
+        user2 = userService.createUser(user2);
+        user3 = userService.createUser(user3);
+        Post post = newPost();
+        post = postRepository.save(post);
+        Integer report1Id =  userService.reportPost(user3.getId(),post.getPostId(),"消息内veiuhruaivbaerb vear容存在问题");
         Assert.assertEquals(report1Id,reportRepository.getOne(report1Id).getReportId());
-
+        userRepository.delete(user1);
+        userRepository.delete(user2);
+        userRepository.delete(user3);
+        postRepository.delete(post);
     }
 
     /**
@@ -570,16 +605,16 @@ public class UserServiceTest {
     public void updateUser(){
         User user1 = newUser();
         user1.setPassword("dfsfs32132132");
-        userService.createUser(user1);
+        user1 = userService.createUser(user1);
 
-        User user2 = new User("name", "12345678901", "12345678fdsasfaf", true, new Date(),
+        User user2 = new User("name", "13645678901", "12345678fdsasfaf", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
 
         userService.updateUser(user1.getId(),user2);
 
         Assert.assertEquals("name",user1.getName());
-
+        userRepository.delete(user1);
     }
 
     /**
@@ -592,17 +627,19 @@ public class UserServiceTest {
 
     @Test
     public void getPosts(){
-        User user2 = new User("name", "12345678901", "12345678fdsasfaf", true, new Date(),
+        User user2 = new User("name", "13645678901", "12345678fdsasfaf", true, new Date(),
                 100, 10, 5, 1, 2,true, true,
                 true, new Date(), new Date());
-        userService.createUser(user2);
+        user2 = userService.createUser(user2);
 
         Post post = newPost();
         post.setUserId(user2.getId());
-        postRepository.save(post);
+        post = postRepository.save(post);
 
         Integer postIdFound = userService.getPosts(user2.getId()).get(0);
         Assert.assertEquals(post.getPostId(), postIdFound);
+        userRepository.delete(user2);
+        postRepository.delete(post);
     }
 
 }

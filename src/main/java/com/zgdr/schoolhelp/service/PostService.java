@@ -53,6 +53,9 @@ public class PostService {
     @Resource
     private PostImageRepository postImageRepostiry;
 
+    @Resource
+    private UserService userService;
+
 
     /**
      * 返回全部贴子信息
@@ -140,7 +143,6 @@ public class PostService {
         if (post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-
         return post;
     }
 
@@ -171,25 +173,26 @@ public class PostService {
      * @param userId 用户id
 
      */
-    public void addPostApproval(Approval approval, Integer userId) {
-        List<Approval> approvalList = approvalRepository.findAll();
+    public String addPostApproval(Approval approval, Integer userId) {
         Post post = postRepository.findById(approval.getPostId()).orElse(null);
         if (post == null) {
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-        for (Approval approval1 : approvalList) {
-            if ( (approval1.getPostId().equals(approval.getPostId())) &&(approval1.getUserId().equals(userId))) {
-                post.setApprovalNum(post.getApprovalNum() - 1);
-                approvalRepository.deleteById(approval1.getApprovalId());
-            }
+        Approval approval1 = approvalRepository.findByPostIdAndUserId(approval.getPostId(), userId);
+        if(approval1!=null){
+            post.setApprovalNum(post.getApprovalNum() - 1);
+            approvalRepository.deleteById(approval1.getApprovalId());
+            postRepository.save(post);
+            return "取消点赞";
+        }else{
+            approval.setUserId(userId);
+            post.setApprovalNum(post.getApprovalNum() + 1);
+            postRepository.save(post);
+            Date date = new Date();
+            approval.setApprovalTime(date);
+            approvalRepository.save(approval);
+            return "点赞成功";
         }
-
-        approval.setUserId(userId);
-        post.setApprovalNum(post.getApprovalNum() + 1);
-        postRepository.save(post);
-        Date date = new Date();
-        approval.setApprovalTime(date);
-        approvalRepository.save(approval);
     }
 
 
@@ -203,8 +206,11 @@ public class PostService {
      */
     @Transactional
     public void deletePostById(Integer userId, Integer postId){
-        Post post = this.readPostById(postId);
-        if (! userId.equals(post.getUserId())){
+        Post post = postRepository.findById(postId).orElse(null);
+        if(post == null){
+            throw new PostException(PostResultEnum.NOT_FOUND);
+        }
+        if (! userId.equals(post.getUserId())&&!userService.checkPower(userId)){
             throw new GlobalException(GlobalResultEnum.NOT_POWER);
         }
         reportRepository.deleteByPostId(postId);
@@ -253,6 +259,9 @@ public class PostService {
     public void  createReport(Report report, Integer userId){
         if (report.getReportDes() == null){
             throw new PostException(PostResultEnum.NO_DES);
+        }
+        if(reportRepository.findByUserIdAndPostId(userId, report.getPostId())!=null){
+            throw new PostException(PostResultEnum.REPEAT_REPORT);
         }
         report.setUserId(userId);
         Post post=postRepository.findById(report.getPostId()).orElse(null);
@@ -378,7 +387,7 @@ public class PostService {
     }
 
     public List<Post>  findPostsByPostType(Integer postType){
-        return postRepository.findPostsByPostType(postType);
+        return postRepository.findPostsByPostType(postType.toString());
     }
 
     public List<Post>  findPostByKeyword(String keyword){
@@ -396,13 +405,12 @@ public class PostService {
      * @param  commentId 评论的id
      */
     public void sumbitPost(Integer userId ,Integer postId ,Integer commentId){
-
         Comment comment = commentRepository.findById(commentId).orElse(null);
         if(comment == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
         }
         //获取获得积分的用户
-        Integer user1 =  comment.getUserId();
+        Integer user1 = comment.getUserId();
         User userget =  userRepository.findById(user1).orElse(null);
         if(userget == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);
