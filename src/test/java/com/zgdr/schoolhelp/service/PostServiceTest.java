@@ -91,10 +91,13 @@ public class PostServiceTest {
 
     @Test
     public void  createComment(){
+        Post post1 = postRepository.save(post);
+        comment.setPostId(post1.getPostId());
        Comment comment1 = postService.createComment(comment,user.getId());
         Assert.assertEquals("halo",
                 commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
         commentRepository.delete(comment1);
+        postRepository.delete(post1);
     }
 
     @Test
