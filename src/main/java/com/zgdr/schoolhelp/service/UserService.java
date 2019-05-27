@@ -1,17 +1,22 @@
 package com.zgdr.schoolhelp.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.*;
 import com.zgdr.schoolhelp.enums.PostResultEnum;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
 import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.*;
+import com.zgdr.schoolhelp.utils.TokenUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,6 +72,9 @@ public class UserService {
 
     @Resource
     private MajorRepository majorRepository;
+
+    @Resource
+    private HeadImageRepository headImageRepository;
 
     /**
      * 获取所有用户
@@ -265,13 +273,76 @@ public class UserService {
      * @param userId 用户id
      * @return java.util.List<java.lang.Integer> 帖子postId列表
      */
-    public List<Integer> getUserCollects(Integer userId) {
+    public Object getUserCollects(Integer userId) {
+
         List<Collect> collects = collectRepository.findByUserId(userId);
+
         List<Integer> postIds = new ArrayList<>();
+        int num = 0;
+        //找到收藏帖子id
         for (Collect collect : collects) {
             postIds.add(collect.getPostId());
+            num ++ ;
         }
-        return postIds;
+
+        //数组保存帖子id
+        Integer [] postIds1 = new Integer[num];
+        int p1 = 0;
+        for (Collect collect : collects) {
+            postIds1[p1] = collect.getPostId();
+            p1++;
+        }
+
+        //找到收藏时间
+        Date []t = new Date[num];
+        int i = 0;
+        for (Collect collect : collects) {
+            t[i] = collect.getCoolectTiem();
+            i++ ;
+        }
+
+        //由帖子id找到帖子
+        List<Post> posts = postRepository.findAllById(postIds);
+        List<Integer> userIds = new ArrayList<>();
+
+        for(Post post : posts){
+            userIds.add(post.getUserId());
+        }
+
+        //由用户id找到用户
+        List<User> users = userRepository.findAllById(userIds);
+
+        int j = 0;
+        String [][] s = new String[num][5];
+
+        for (Post post : posts){
+            s[j][0] += "帖子标题：";
+            s[j][0] += post.getTitle();
+
+            s[j][1] += "帖子内容：";
+            s[j][1] += post.getContent();
+
+            s[j][2] += "收藏时间：";
+            s[j][2] += t[j];
+
+
+            j++;
+        }
+        int k = 0;
+        for (User user: users){
+
+            s[k][3] += "用户姓名：";
+            s[k][3] += user.getName();
+
+            s[k][4] += "用户头像：";
+            s[k][4] += headImageRepository.getHeadImageByUserId(user.getId());
+
+            k++;
+        }
+
+        return  s;
+
+
     }
 
     /**
@@ -651,7 +722,7 @@ public class UserService {
      * @author 星夜、痕
      * @since 2019/4/29
      *
-     * @return
+     * @return postIds
      **/
     public List<Integer> getPosts(Integer userId){
         User user =  userRepository.findById(userId).orElse(null);
@@ -665,4 +736,50 @@ public class UserService {
         }
         return postIds;
     }
+
+    /**
+     * 获取当前用户的关注列表
+     * @author 星夜、痕
+     * @since 2019/5/27
+     *
+     * @return postIds
+     **/
+
+    public Object getUserAttention(Integer usrId){
+
+        List<Attention> attentions = attentionRepository.findAllByAttentionUserId(usrId);
+        List<Integer> beAttentionUserIds = new ArrayList<>();
+
+        int num = 0;
+        for (Attention attention : attentions){
+            beAttentionUserIds.add(attention.getBeAttentionUserId());
+            num++;
+        }
+        List<User> users =  userRepository.findAllById(beAttentionUserIds);
+
+        String [][] str = new String[num][4];
+        int i = 0;
+        for(User user : users){
+
+
+            str[i][0] += "用户名：";
+            str[i][0] +=  user.getName();
+
+            str[i][1] += "用户粉丝数：";
+            str[i][1] += user.getFollowNum();
+
+            str[i][2] += "用户是否认证：";
+            str[i][2] += user.isCertified();
+
+            str[i][3] += "用户头像：";
+            str[i][3] += headImageRepository.getHeadImageByUserId(usrId);
+
+            i++;
+
+        }
+        return str;
+
+        //return users;
+    }
+
 }
