@@ -3,8 +3,10 @@ package com.zgdr.schoolhelp.service;
 import com.alibaba.fastjson.JSONObject;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.*;
+import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.PostResultEnum;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
+import com.zgdr.schoolhelp.exception.GlobalException;
 import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.*;
@@ -17,8 +19,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
+
 
 /**
  * UserService
@@ -391,6 +396,27 @@ public class UserService {
             }
         }
         return searchContents;
+    }
+
+    /**
+     * 隐藏对应搜索记录
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @param searchId
+     */
+    public Search hideOneSearch(Integer searchId, Integer userId){
+
+        Search search = searchRepository.findById(searchId).orElse(null);
+        if(search == null){
+            throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
+        }
+        if(!userId.equals(search.getUserId())){
+            throw new GlobalException(GlobalResultEnum.NOT_POWER);
+        }
+        search.setHided(true);
+        return searchRepository.save(search);
+
     }
 
     /**

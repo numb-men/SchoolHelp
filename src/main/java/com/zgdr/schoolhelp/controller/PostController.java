@@ -52,6 +52,19 @@ public class PostController {
         return Result.success(postService.getPostPage(num, postType));
     }
 
+    /**
+     *
+     * @author fishkk
+     * @since 2019/5/27
+     *
+     * @return 返回用户的所有评论
+     */
+    @UserLoginToken
+    @GetMapping(value = "/allcomments")
+    public Result getAllComments(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return  Result.success(postService.getUserAllComment(userId));
+    }
 
     /**
       * 获取贴子详情
@@ -102,6 +115,7 @@ public class PostController {
         return Result.success(postService.getLastPostByNum(num));
     }
 
+
     /**
         * 4 获取类别id为xxx的帖子列表
         * @author fishkk
@@ -124,10 +138,16 @@ public class PostController {
        * @param  keyword 关键词
        * @return title中含关键词的贴子列表
        */
-    @PassToken
     @GetMapping(value = "/search/{keyword}")
-    public Result getPostByKeyword(@PathVariable("keyword") String keyword){
-        return  Result.success(postService.findPostByKeyword(keyword));
+    public Result getPostByKeyword(@PathVariable("keyword") String keyword,
+                                   HttpServletRequest httpServletRequest){
+        if(httpServletRequest.getHeader("token")!=null){
+            Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+            return  Result.success(postService.findPostByKeyword(keyword, userId));
+        }else{
+            return Result.success(postService.findPostByKeyword(keyword));
+        }
+
     }
 
 
