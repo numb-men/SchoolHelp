@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * UserController
@@ -341,7 +343,8 @@ public class UserController {
     @GetMapping(value = "/attention")
     public Result getUserAttention(HttpServletRequest httpServletRequest){
         Integer attentionUserId  = TokenUtil.getUserIdByRequest(httpServletRequest);
-        return Result.success(attentionRepository.findAllByAttentionUserId(attentionUserId));
+
+        return Result.success(userService.getUserAttention(attentionUserId));
     }
 
     /**

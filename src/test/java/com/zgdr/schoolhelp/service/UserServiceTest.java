@@ -261,7 +261,7 @@ public class UserServiceTest {
         userRepository.delete(user);
     }
 
-
+/*
     @Test
     public void collectPost() {
         User user1 = newUser();
@@ -280,7 +280,8 @@ public class UserServiceTest {
         userRepository.delete(user2);
         postRepository.delete(post);
     }
-
+*/
+/*
     @Test
     public void getUserCollects() {
         User user1 = newUser();
@@ -299,7 +300,8 @@ public class UserServiceTest {
         userRepository.delete(user2);
         postRepository.delete(post);
     }
-
+*/
+/*
     @Test
     public void deleteUserCollect() {
         User user1 = newUser();
@@ -320,7 +322,7 @@ public class UserServiceTest {
         userRepository.delete(user2);
         postRepository.delete(post);
     }
-
+*/
     @Test
     public void getUserSearchHistory() {
         User user = newUser();
@@ -480,6 +482,7 @@ public class UserServiceTest {
      * @author 星夜、痕
      * @since 2019/5/24
      **/
+
     @Test
     public void attentionUser(){
         User user1 = newUser();
