@@ -228,6 +228,22 @@ public class UserController {
 
 
     /**
+     * 获取用户所有评论
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @GetMapping(value = "/comments")
+    public Result getUserComments(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.getUserComments(userId));
+    }
+
+
+    /**
      * 将用户当前的搜索历史隐藏不显示
      * @author hengyumo
      * @since 2019/4/27
@@ -240,6 +256,24 @@ public class UserController {
     public Result hideUserSearchHistoty(HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.hideUserSearchHistory(userId));
+    }
+
+    /**
+     * 删除某条搜索记录
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param searchIdDeleted 待删除的搜索Id
+     * @param httpServletRequest Http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @DeleteMapping(value = "search")
+    @NotNull(value = "searchIdDeleted")
+    public Result deleteASearchHistoty(@RequestParam(name = "searchId") Integer searchIdDeleted,
+                                       HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.deleteASearchHistory(userId, searchIdDeleted));
     }
 
     /**

@@ -332,7 +332,7 @@ public class UserServiceTest {
         search.setContent("暑假实习");
         search = searchRepository.save(search);
 
-        String contentFound = userService.getUserSearchHistory(user.getId()).get(0);
+        String contentFound = userService.getUserSearchHistory(user.getId()).get(0).getString("content");
         Assert.assertEquals("暑假实习", contentFound);
         userRepository.delete(user);
         searchRepository.delete(search);
