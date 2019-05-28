@@ -31,10 +31,10 @@ public class UploadImageUtil {
             //文件为空
             throw new ImageException(ImageResultEnum.EMPTY_FILE);
         }
-        if (!image.getContentType().equals("image/png") || !image.getContentType().equals("image/jpg")){
+        if (!image.getContentType().equals("image/png") && !image.getContentType().equals("image/jpeg")){
+           // System.out.println(image.getContentType());
             throw new ImageException(ImageResultEnum.TYPE_ERROR);
-        }
-        System.out.println(image.getContentType());
+        };
         QiniuCloudUtil qiniuUtil = new QiniuCloudUtil();
         String url;
             try {

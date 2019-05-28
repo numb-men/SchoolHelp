@@ -226,6 +226,22 @@ public class UserController {
         return Result.success(userService.getUserSearchHistory(userId));
     }
 
+    /**
+     *删除对应搜索记录
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @DeleteMapping(value = "/delete/search")
+    public Result hideOneSearch(@RequestParam(value = "searchId") Integer searchId,
+                                HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.hideOneSearch(searchId ,userId));
+    }
+
 
     /**
      * 将用户当前的搜索历史隐藏不显示

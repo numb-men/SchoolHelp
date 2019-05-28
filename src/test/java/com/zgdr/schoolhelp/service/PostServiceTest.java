@@ -88,6 +88,16 @@ public class PostServiceTest {
         headImageRepository.delete(headImage);
         headImageRepository.delete(headImage1);
     }
+    @Test
+    public void getUserAllComment(){
+        User user2=userRepository.save(user);
+        comment=commentRepository.save(comment);
+        List<Comment> list= postService.getUserAllComment(user2.getId());
+        for (Comment comment1:list){
+            Assert.assertEquals(user2.getId(),comment1.getUserId());
+        }
+        commentRepository.delete(comment);
+    }
 
     @Test
     public void  createComment(){
@@ -178,7 +188,7 @@ public class PostServiceTest {
         String keyword = "UCYGUACAWSCW";
         List<Post> list = postService.findPostByKeyword(keyword);
         for(Post post2 : list){
-           Assert.assertEquals(false, post2.getContent().indexOf(keyword)==-1) ;
+           Assert.assertEquals(false, post2.getTitle().indexOf(keyword)==-1) ;
         }
         postRepository.delete(post1);
     }
