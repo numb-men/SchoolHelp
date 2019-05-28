@@ -14,4 +14,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface HeadImageRepository extends JpaRepository<HeadImage,Integer> {
     HeadImage findByUserId(Integer userId);//查找一个用户的头像记录
+
+    HeadImage getHeadImageByUserId(Integer userId);
 }

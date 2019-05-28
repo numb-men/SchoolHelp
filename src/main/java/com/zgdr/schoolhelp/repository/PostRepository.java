@@ -61,6 +61,4 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
     List<Post> findAllByUserId(Integer userId);
 
 
-
-
 }
