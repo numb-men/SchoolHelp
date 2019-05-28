@@ -466,12 +466,12 @@ public class PostService {
 
     public List<String> hotWord(){
         List x = new ArrayList();
-      //  x.add("二手书交易");
-       // x.add("面试");
-       // x.add("实习");
-       // x.add("生活");
-       // x.add("运动");
-       // x.add("学习");
+        x.add("二手书交易");
+        x.add("面试");
+        x.add("实习");
+        x.add("生活");
+        x.add("运动");
+        x.add("学习");
         return  x;
     }
 }

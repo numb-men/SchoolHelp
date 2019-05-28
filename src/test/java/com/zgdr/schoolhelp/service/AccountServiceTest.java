@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  * @since 2019/4/27
  * @version 1.0
  */
-//@Ignore
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试
