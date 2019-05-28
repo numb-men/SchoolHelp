@@ -15,4 +15,10 @@ import java.util.List;
 public interface MessgaeRepository extends JpaRepository<Message,Integer> {
     //按接受者 accet 查询
     List<Message> findByAccet(Integer accet);
+
+    //按发送者send 查询
+    List<Message> findBySend(Integer send);
+
+    //按发送者 send 和接受者查询 accet
+    List<Message> findBySendAndAccet(Integer send,Integer accet);
 }

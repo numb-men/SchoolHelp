@@ -510,5 +510,20 @@ public class UserController {
                 collegeId, majorId, IdCard));
     }
 
+    /**
+     * 获取当前用户与对应用户的所有消息
+     * @author 星夜、痕
+     * @since 2019/5/28
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     **/
 
+    @UserLoginToken
+    @GetMapping(value = "/message/Corresponding")
+    public Result newMessage(@RequestParam Integer accept,
+                             HttpServletRequest httpServletRequest){
+        Integer send  = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(userService.correspondingMessage(send,accept));
+    }
 }
