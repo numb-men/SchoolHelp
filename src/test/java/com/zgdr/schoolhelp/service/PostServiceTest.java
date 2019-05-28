@@ -103,10 +103,22 @@ public class PostServiceTest {
     public void  createComment(){
         Post post1 = postRepository.save(post);
         comment.setPostId(post1.getPostId());
-       Comment comment1 = postService.createComment(comment,user.getId());
+        Comment comment1 = postService.createComment(comment,user.getId());
         Assert.assertEquals("halo",
                 commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
         commentRepository.delete(comment1);
+        postRepository.delete(post1);
+    }
+
+    @Test
+    public void deleteComment(){
+        Post post1 = postRepository.save(post);
+        comment.setPostId(post1.getPostId());
+        Comment comment1 = postService.createComment(comment,user.getId());
+        Assert.assertEquals("halo",
+                commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
+        postService.deleteComment(user.getId(), comment1.getCommentId());
+        Assert.assertEquals(null, commentRepository.findById(comment1.getCommentId()).orElse(null));
         postRepository.delete(post1);
     }
 

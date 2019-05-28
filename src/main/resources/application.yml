@@ -6,7 +6,8 @@ spring:
     url: jdbc:mysql://134.175.16.143:3306/SchoolHelp?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8
     username: schoolhelp6!
     password: Zgdr@Very6!
-
+  jackson:
+    time-zone: GMT+8
   jpa:
     hibernate:
       ddl-auto: update

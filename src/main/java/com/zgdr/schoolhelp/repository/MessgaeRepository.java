@@ -15,4 +15,6 @@ import java.util.List;
 public interface MessgaeRepository extends JpaRepository<Message,Integer> {
     //按接受者 accet 查询
     List<Message> findByAccet(Integer accet);
+
+    List<Message> findByAccetAndState(Integer userId, boolean state);
 }

@@ -85,6 +85,25 @@ public class PostService {
     }
 
     /**
+     * 删除评论
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @return  Object
+     */
+    public Object deleteComment(Integer userId, Integer commentId){
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment == null){
+            throw new PostException(PostResultEnum.NOT_FOUND_COMMENT);
+        }
+        if (!comment.getUserId().equals(userId)){
+            throw new UserException(UserResultEnum.NO_POWER);
+        }
+         commentRepository.delete(comment);
+        return null;
+    }
+
+    /**
      * 获取用户所有评论
      * @author yangji
      * @since 2019/5/27
