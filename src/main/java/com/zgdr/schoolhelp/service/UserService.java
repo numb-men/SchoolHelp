@@ -274,7 +274,7 @@ public class UserService {
      * @since 2019/5/27
      *
      * @param userId 用户id
-     * @return Strint [][] ,返回对应用户收藏的，包含（帖子标题，帖子内容，收藏时间，用户姓名，收藏时间）二维数组
+     * @return jsonObjects
      */
     public Object getUserCollects(Integer userId) {
         List<Collect> collects = collectRepository.findByUserId(userId);
@@ -316,9 +316,10 @@ public class UserService {
         List<JSONObject> userCollects = new ArrayList<>();
         for (Post post : posts){
             JSONObject jsonObject = new JSONObject();
+            jsonObject.put("postId",post.getPostId());
             jsonObject.put("title",post.getTitle());
             jsonObject.put("content",post.getContent());
-            jsonObject.put("coolectTiem",t[k]);
+            jsonObject.put("coolectTime",t[k]);
 
             HeadImage headImage = headImages.get(k);
             jsonObject.put("imageUrl",headImage.getImageUrl());
@@ -793,7 +794,7 @@ public class UserService {
      * @author 星夜、痕
      * @since 2019/5/27
      *
-     * @return Strint [][] ,返回对应被关注用户（用户名，用户粉丝数，用户是否认证，用户头像）的二维数组
+     * @return jsonObjects
      **/
 
     public Object getUserAttention(Integer usrId){
@@ -819,6 +820,7 @@ public class UserService {
         int i = 1;
         for (User user : users){
             JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id",user.getId());
             jsonObject.put("name",user.getName());
             jsonObject.put("followNum",user.getFollowNum());
             jsonObject.put("isCertified", user.isCertified());
@@ -837,7 +839,7 @@ public class UserService {
      * @author 星夜、痕
      * @since 2019/5/28
      *
-     * @return
+     * @return jsonObjects
      **/
     public Object correspondingMessage(Integer send,Integer accept){
 
@@ -874,11 +876,13 @@ public class UserService {
         for (Message message : allMessage){
             JSONObject jsonObject = new JSONObject();
             if(send.equals(message.getSend()) && accept.equals(message.getAccet())){
+                jsonObject.put("send",message.getSend());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
             }
             else{
+                jsonObject.put("accept",message.getSend());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
                 jsonObject.put("name",acceptUser.getName());
                 jsonObject.put("isOnline",acceptUser.isOnline());
