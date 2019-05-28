@@ -56,6 +56,9 @@ public class PostService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private SearchRepository searchRepository;
+
 
     /**
      * 返回全部贴子信息
@@ -81,6 +84,35 @@ public class PostService {
         return postRepository.findPostsByPostType(pageable,postType.toString());
     }
 
+    /**
+     * 删除评论
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @return  Object
+     */
+    public Object deleteComment(Integer userId, Integer commentId){
+        Comment comment = commentRepository.findById(commentId).orElse(null);
+        if (comment == null){
+            throw new PostException(PostResultEnum.NOT_FOUND_COMMENT);
+        }
+        if (!comment.getUserId().equals(userId)){
+            throw new UserException(UserResultEnum.NO_POWER);
+        }
+         commentRepository.delete(comment);
+        return null;
+    }
+
+    /**
+     * 获取用户所有评论
+     * @author yangji
+     * @since 2019/5/27
+     *
+     * @return List<Comment> 用户的评论列表
+     */
+    public List<Comment> getUserAllComment(Integer userId){
+        return commentRepository.findAllByUserId(userId);
+    }
     /**
      * 创建贴子
      * @author fishkk
@@ -110,6 +142,7 @@ public class PostService {
         post.setHelpUserId(-1);
         Date date = new Date();
         post.setIssueTime(date);
+        System.out.println(headImageRepository.findByUserId(userId));
         String headImage = headImageRepository.findByUserId(userId).getImageUrl();
         if(headImage == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
@@ -172,25 +205,26 @@ public class PostService {
      * @param userId 用户id
 
      */
-    public void addPostApproval(Approval approval, Integer userId) {
-        List<Approval> approvalList = approvalRepository.findAll();
+    public String addPostApproval(Approval approval, Integer userId) {
         Post post = postRepository.findById(approval.getPostId()).orElse(null);
         if (post == null) {
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
-        for (Approval approval1 : approvalList) {
-            if ( (approval1.getPostId().equals(approval.getPostId())) &&(approval1.getUserId().equals(userId))) {
-                post.setApprovalNum(post.getApprovalNum() - 1);
-                approvalRepository.deleteById(approval1.getApprovalId());
-            }
+        Approval approval1 = approvalRepository.findByPostIdAndUserId(approval.getPostId(), userId);
+        if(approval1!=null){
+            post.setApprovalNum(post.getApprovalNum() - 1);
+            approvalRepository.deleteById(approval1.getApprovalId());
+            postRepository.save(post);
+            return "取消点赞";
+        }else{
+            approval.setUserId(userId);
+            post.setApprovalNum(post.getApprovalNum() + 1);
+            postRepository.save(post);
+            Date date = new Date();
+            approval.setApprovalTime(date);
+            approvalRepository.save(approval);
+            return "点赞成功";
         }
-
-        approval.setUserId(userId);
-        post.setApprovalNum(post.getApprovalNum() + 1);
-        postRepository.save(post);
-        Date date = new Date();
-        approval.setApprovalTime(date);
-        approvalRepository.save(approval);
     }
 
 
@@ -257,6 +291,9 @@ public class PostService {
     public void  createReport(Report report, Integer userId){
         if (report.getReportDes() == null){
             throw new PostException(PostResultEnum.NO_DES);
+        }
+        if(reportRepository.findByUserIdAndPostId(userId, report.getPostId())!=null){
+            throw new PostException(PostResultEnum.REPEAT_REPORT);
         }
         report.setUserId(userId);
         Post post=postRepository.findById(report.getPostId()).orElse(null);
@@ -385,6 +422,12 @@ public class PostService {
         return postRepository.findPostsByPostType(postType.toString());
     }
 
+    public List<Post>  findPostByKeyword(String keyword, Integer userId){
+        Search search=new Search(userId, keyword, new Date(), false);
+        searchRepository.save(search);
+        return postRepository.findPostsByKeyword(keyword);
+    }
+
     public List<Post>  findPostByKeyword(String keyword){
         return postRepository.findPostsByKeyword(keyword);
     }
@@ -442,12 +485,12 @@ public class PostService {
 
     public List<String> hotWord(){
         List x = new ArrayList();
-        x.add("二手书交易");
-        x.add("面试");
-        x.add("实习");
-        x.add("生活");
-        x.add("运动");
-        x.add("学习");
+      //  x.add("二手书交易");
+       // x.add("面试");
+       // x.add("实习");
+       // x.add("生活");
+       // x.add("运动");
+       // x.add("学习");
         return  x;
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
  * @创建者 fishkk
  * @创建时间 描述
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class PostServiceTest {
@@ -88,15 +88,37 @@ public class PostServiceTest {
         headImageRepository.delete(headImage);
         headImageRepository.delete(headImage1);
     }
+    @Test
+    public void getUserAllComment(){
+        User user2=userRepository.save(user);
+        comment=commentRepository.save(comment);
+        List<Comment> list= postService.getUserAllComment(user2.getId());
+        for (Comment comment1:list){
+            Assert.assertEquals(user2.getId(),comment1.getUserId());
+        }
+        commentRepository.delete(comment);
+    }
 
     @Test
     public void  createComment(){
         Post post1 = postRepository.save(post);
         comment.setPostId(post1.getPostId());
-       Comment comment1 = postService.createComment(comment,user.getId());
+        Comment comment1 = postService.createComment(comment,user.getId());
         Assert.assertEquals("halo",
                 commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
         commentRepository.delete(comment1);
+        postRepository.delete(post1);
+    }
+
+    @Test
+    public void deleteComment(){
+        Post post1 = postRepository.save(post);
+        comment.setPostId(post1.getPostId());
+        Comment comment1 = postService.createComment(comment,user.getId());
+        Assert.assertEquals("halo",
+                commentRepository.findById(comment1.getCommentId()).orElse(null).getCommentContent());
+        postService.deleteComment(user.getId(), comment1.getCommentId());
+        Assert.assertEquals(null, commentRepository.findById(comment1.getCommentId()).orElse(null));
         postRepository.delete(post1);
     }
 
@@ -151,10 +173,10 @@ public class PostServiceTest {
    @Test
     public void createReport(){
         Post post1 = postService.createPost(post, user.getId(),null);
-        Report report = new Report(user.getId(),post1.getPostId(),"bascjhasbcjhabsc",new Date());
+        Report report = new Report(user.getId(),post1.getPostId(),"bascvbsjbvkbvjhdfjhasbcjhabsc",new Date());
         postService.createReport(report,user.getId());
         Report report1= reportRepository.findByUserIdAndPostId(user.getId(), post1.getPostId());
-        Assert.assertEquals("bascjhasbcjhabsc", report1.getReportDes());
+        Assert.assertEquals("bascvbsjbvkbvjhdfjhasbcjhabsc", report1.getReportDes());
         reportRepository.delete(report1);
         postRepository.delete(post1);
 
@@ -178,7 +200,7 @@ public class PostServiceTest {
         String keyword = "UCYGUACAWSCW";
         List<Post> list = postService.findPostByKeyword(keyword);
         for(Post post2 : list){
-           Assert.assertEquals(false, post2.getContent().indexOf(keyword)==-1) ;
+           Assert.assertEquals(false, post2.getTitle().indexOf(keyword)==-1) ;
         }
         postRepository.delete(post1);
     }

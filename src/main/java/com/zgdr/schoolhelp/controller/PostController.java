@@ -30,7 +30,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/post")
-
 public class PostController {
 
     @Resource
@@ -43,6 +42,8 @@ public class PostController {
      * @author yangji
      * @since 2019/5/25
      *
+     * @param num 页数
+     * @param postType 帖子的类型
      * @return page<post> 分页的帖子
      */
     @PassToken
@@ -52,6 +53,35 @@ public class PostController {
         return Result.success(postService.getPostPage(num, postType));
     }
 
+    /**
+     * 用户删除自己的评论
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @param commentId 评论的id
+     * @return Result
+     */
+    @UserLoginToken
+    @DeleteMapping(value = "/delete/comment")
+    public Result deleteComment(@RequestParam(value = "commentId") Integer commentId,
+                                HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(postService.deleteComment(userId, commentId));
+
+    }
+    /**
+     *
+     * @author fishkk
+     * @since 2019/5/27
+     *
+     * @return 返回用户的所有评论
+     */
+    @UserLoginToken
+    @GetMapping(value = "/allcomments")
+    public Result getAllComments(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return  Result.success(postService.getUserAllComment(userId));
+    }
 
     /**
       * 获取贴子详情
@@ -102,6 +132,7 @@ public class PostController {
         return Result.success(postService.getLastPostByNum(num));
     }
 
+
     /**
         * 4 获取类别id为xxx的帖子列表
         * @author fishkk
@@ -124,10 +155,16 @@ public class PostController {
        * @param  keyword 关键词
        * @return title中含关键词的贴子列表
        */
-    @PassToken
     @GetMapping(value = "/search/{keyword}")
-    public Result getPostByKeyword(@PathVariable("keyword") String keyword){
-        return  Result.success(postService.findPostByKeyword(keyword));
+    public Result getPostByKeyword(@PathVariable("keyword") String keyword,
+                                   HttpServletRequest httpServletRequest){
+        if(httpServletRequest.getHeader("token")!=null){
+            Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+            return  Result.success(postService.findPostByKeyword(keyword, userId));
+        }else{
+            return Result.success(postService.findPostByKeyword(keyword));
+        }
+
     }
 
 
@@ -229,8 +266,7 @@ public class PostController {
     public Result approval(@Valid Approval approval,BindingResult bindingResult,
                          HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        postService.addPostApproval(approval,userId);
-        return Result.success(null);
+        return Result.success(postService.addPostApproval(approval,userId));
     }
     
     /**
@@ -239,15 +275,11 @@ public class PostController {
       * @since 2019/4/25
       *token
       * @param comment 评论信息
-      * @param bindingResult 表单验证结果
       */
     @UserLoginToken
     @PostMapping(value = "/comment")
-    public Result comment(@Valid Comment comment ,BindingResult bindingResult,
+    public Result comment(@Valid Comment comment ,
                         HttpServletRequest httpServletRequest){
-        if(bindingResult.hasErrors()){
-            throw new PostException(PostResultEnum.NOT_COMMENT);
-        }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createComment(comment,userId);
         return Result.success(null);
@@ -259,15 +291,11 @@ public class PostController {
       * @since 2019/4/25
       *
       * @param report 举报信息
-      * @param bindingResult 表单验证结果
       */
     @UserLoginToken
     @PostMapping(value = "/report")
-    public Result report(@Valid Report report ,BindingResult bindingResult,
+    public Result report(@Valid Report report,
                        HttpServletRequest httpServletRequest){
-        if(bindingResult.hasErrors()){
-            throw new PostException(PostResultEnum.NO_DES);
-        }
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         postService.createReport(report,userId);
         return Result.success(null);
@@ -299,7 +327,7 @@ public class PostController {
      * @since 2019/4/25
      *
      * @param post 帖子信息
-     * @param bindingResult 表单验证结果
+     * @param image 图片数组
      * @return  贴子对象
      */
 
@@ -307,12 +335,8 @@ public class PostController {
     @PostMapping(value = "")
     public Result creatPost(@Valid Post post,
                             @RequestParam(required = false) List<MultipartFile> image,
-                            BindingResult bindingResult,
                             HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        if(bindingResult.hasErrors()){
-            return Result.error(PostResultEnum.NODE);
-        }
         if (postService.isRightPoints(post,userId)){
             return Result.error(PostResultEnum.MORE_POINTS);
         }

@@ -1,5 +1,7 @@
 package com.zgdr.schoolhelp.domain;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -33,6 +35,7 @@ public class Comment {
 
     /* 评论内容 */
     @NotBlank
+    @Length(min = 1, max = 100, message = "评论内容应在1-100字之间")
     private String commentContent;
 
     /* 评论日期*/

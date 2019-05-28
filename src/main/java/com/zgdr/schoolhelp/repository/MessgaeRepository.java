@@ -21,4 +21,7 @@ public interface MessgaeRepository extends JpaRepository<Message,Integer> {
 
     //按发送者 send 和接受者查询 accet
     List<Message> findBySendAndAccet(Integer send,Integer accet);
+
+    List<Message> findByAccetAndState(Integer userId, boolean state);
+
 }

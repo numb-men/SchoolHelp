@@ -2,6 +2,7 @@ package com.zgdr.schoolhelp.repository;
 
 import com.zgdr.schoolhelp.domain.Search;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -15,4 +16,5 @@ import java.util.List;
 public interface SearchRepository extends JpaRepository<Search, Integer> {
     List<Search> findAllByUserIdOrderBySearchTimeDesc(Integer userId);
     List<Search> findAllByUserIdAndIsHidedFalse(Integer userId);
+    Search findBySearchIdIn(Integer searchId);
 }

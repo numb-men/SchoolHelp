@@ -4,8 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.*;
+import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.PostResultEnum;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
+import com.zgdr.schoolhelp.exception.GlobalException;
 import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.*;
@@ -17,8 +19,12 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import  java.util.Date;
+import javax.validation.constraints.Max;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Date;
 
 /**
  * UserService
@@ -359,18 +365,78 @@ public class UserService {
      * @since 2019/4/27
      *
      * @param userId 用户id
-     * @return java.util.List<java.lang.String> 搜索历史
+     * @return java.util.List<JSONobject> 搜索历史
      */
-    public List<String> getUserSearchHistory(Integer userId) {
+    public List<JSONObject> getUserSearchHistory(Integer userId) {
         List<Search> searches = searchRepository.findAllByUserIdOrderBySearchTimeDesc(userId);
-        List<String> searchContents = new ArrayList<>();
+        List<JSONObject> searchContents = new ArrayList<>();
         for (Search search : searches) {
             if (! search.isHided()) {
                 // 如果搜索历史未被隐藏
-                searchContents.add(search.getContent());
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("searchId", search.getSearchId());
+                jsonObject.put("userId", search.getUserId());
+                jsonObject.put("content", search.getContent());
+                jsonObject.put("searchTime", search.getSearchTime());
+                searchContents.add(jsonObject);
             }
         }
         return searchContents;
+    }
+
+    /**
+     * 隐藏对应搜索记录
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @param searchId
+     */
+    public Search hideOneSearch(Integer searchId, Integer userId){
+
+        Search search = searchRepository.findById(searchId).orElse(null);
+        if(search == null){
+            throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
+        }
+        if(!userId.equals(search.getUserId())){
+            throw new GlobalException(GlobalResultEnum.NOT_POWER);
+        }
+        search.setHided(true);
+        return searchRepository.save(search);
+
+    }
+
+    /**
+     * 删除用户某条搜索
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param userId 用户Id
+     * @param searchIdDeleted 待删除的搜索Id
+     * @return null
+     */
+    public Object deleteASearchHistory(Integer userId, Integer searchIdDeleted) {
+        Search search = searchRepository.findBySearchIdIn(searchIdDeleted);
+        if (search == null){
+            throw new UserException(UserResultEnum.COLLLECT_ID_NOT_FOUND); // 收藏不存在
+        } else if (! search.getUserId().equals(userId)){
+            throw new UserException((UserResultEnum.NO_POWER)); // 只能删除自己的收藏
+        }
+
+        search.setHided(true);
+        searchRepository.save(search);
+        return null;
+    }
+
+    /**
+     * 获取对应用户的所有帖子，按时间倒序
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param userId 用户Id
+     * @return List<Comment>
+     */
+    public List<Comment> getUserComments(Integer userId) {
+        return commentRepository.findAllByUserIdOrderByCommentTimeDesc(userId);
     }
 
     /**
