@@ -30,7 +30,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/post")
-
 public class PostController {
 
     @Resource
@@ -43,6 +42,8 @@ public class PostController {
      * @author yangji
      * @since 2019/5/25
      *
+     * @param num 页数
+     * @param postType 帖子的类型
      * @return page<post> 分页的帖子
      */
     @PassToken
@@ -52,6 +53,22 @@ public class PostController {
         return Result.success(postService.getPostPage(num, postType));
     }
 
+    /**
+     * 用户删除自己的评论
+     * @author yangji
+     * @since 2019/5/28
+     *
+     * @param commentId 评论的id
+     * @return Result
+     */
+    @UserLoginToken
+    @DeleteMapping(value = "/delete/comment")
+    public Result deleteComment(@RequestParam(value = "commentId") Integer commentId,
+                                HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(postService.deleteComment(userId, commentId));
+
+    }
     /**
      *
      * @author fishkk

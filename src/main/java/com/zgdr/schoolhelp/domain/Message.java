@@ -38,6 +38,9 @@ public class Message {
     /*发送时间*/
     private Date sendTime;
 
+    /* 消息的状态 */
+    private boolean state;
+
     @Override
     public String toString() {
         return "Message{" +
@@ -48,6 +51,14 @@ public class Message {
                 ", messageType='" + messageType + '\'' +
                 ", sendTime=" + sendTime +
                 '}';
+    }
+
+    public boolean isState() {
+        return state;
+    }
+
+    public void setState(boolean state) {
+        this.state = state;
     }
 
     public Integer getMessageId() {
@@ -107,5 +118,6 @@ public class Message {
         this.messageContent = messageContent;
         this.messageType = messageType;
         this.sendTime = sendTime;
+        this.state = false;
     }
 }
