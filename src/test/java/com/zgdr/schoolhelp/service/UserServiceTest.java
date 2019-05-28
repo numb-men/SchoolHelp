@@ -329,9 +329,20 @@ public class UserServiceTest {
         search.setUserId(user.getId());
         search.setContent("暑假实习");
         search = searchRepository.save(search);
-
-        String contentFound = userService.getUserSearchHistory(user.getId()).get(0);
+        String contentFound = userService.getUserSearchHistory(user.getId()).get(search.getSearchId());
         Assert.assertEquals("暑假实习", contentFound);
+        userRepository.delete(user);
+        searchRepository.delete(search);
+    }
+
+    @Test
+    public void hideOneSearch(){
+        User user = newUser();
+        user = userService.createUser(user);
+        Search search = new Search(user.getId(), "哪个食堂好吃", new Date(), false);
+        search = searchRepository.save(search);
+        search = userService.hideOneSearch(search.getSearchId(), user.getId());
+        Assert.assertEquals(true,search.isHided());
         userRepository.delete(user);
         searchRepository.delete(search);
     }

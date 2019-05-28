@@ -56,6 +56,9 @@ public class PostService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private SearchRepository searchRepository;
+
 
     /**
      * 返回全部贴子信息
@@ -81,6 +84,16 @@ public class PostService {
         return postRepository.findPostsByPostType(pageable,postType.toString());
     }
 
+    /**
+     * 获取用户所有评论
+     * @author yangji
+     * @since 2019/5/27
+     *
+     * @return List<Comment> 用户的评论列表
+     */
+    public List<Comment> getUserAllComment(Integer userId){
+        return commentRepository.findAllByUserId(userId);
+    }
     /**
      * 创建贴子
      * @author fishkk
@@ -389,6 +402,12 @@ public class PostService {
         return postRepository.findPostsByPostType(postType.toString());
     }
 
+    public List<Post>  findPostByKeyword(String keyword, Integer userId){
+        Search search=new Search(userId, keyword, new Date(), false);
+        searchRepository.save(search);
+        return postRepository.findPostsByKeyword(keyword);
+    }
+
     public List<Post>  findPostByKeyword(String keyword){
         return postRepository.findPostsByKeyword(keyword);
     }
@@ -446,12 +465,12 @@ public class PostService {
 
     public List<String> hotWord(){
         List x = new ArrayList();
-        x.add("二手书交易");
-        x.add("面试");
-        x.add("实习");
-        x.add("生活");
-        x.add("运动");
-        x.add("学习");
+      //  x.add("二手书交易");
+       // x.add("面试");
+       // x.add("实习");
+       // x.add("生活");
+       // x.add("运动");
+       // x.add("学习");
         return  x;
     }
 }
