@@ -79,6 +79,7 @@ public class UserService {
     @Resource
     private HeadImageRepository headImageRepository;
 
+
     /**
      * 获取所有用户
      * @author hengyumo
@@ -587,9 +588,11 @@ public class UserService {
         if (user == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);
         }
+        Date date = new Date();
         Message message = new Message();
         message.setAccet(accept);
         message.setMessageContent(messageContent);
+        message.setSendTime(date);
         message.setSend(send);
         messgaeRepository.saveAndFlush(message);
         return message.getMessageId();
@@ -736,37 +739,77 @@ public class UserService {
      * @since 2019/4/29
      *
      * @param userId 用户id
-     * @param user
+     * @param
      * @return null
      */
-    public Object updateUser(Integer userId, User user) {
+    public Object updateUser(Integer userId,String name,String phone,String sex,Integer studentNum,Integer majorId, Integer collegeId,String mail) {
+
+        if (name == null){
+            throw new UserException(UserResultEnum.NAME_NULL);
+        }
+        if (sex == null){
+            throw new UserException(UserResultEnum.SEX_NULL);
+        }
+        Student student = studentRepository.findAllByUserId(userId).get(0);
+        if (student == null){
+            throw new UserException(UserResultEnum.NO_REGISTER);
+        }
+        if (studentNum == null){
+            throw new UserException(UserResultEnum.SCHOOLNAME_NULL);
+        }
+        if (majorId == null){
+            throw new UserException(UserResultEnum.MAJOR_NULL);
+        }
+        Major major = majorRepository.findById(majorId).orElse(null);
+        if (major == null){//专业不存在
+            throw new UserException(UserResultEnum.MAJOR_NULL);
+        }
+        if (collegeId == null){
+            throw new UserException(UserResultEnum.COLLEGE_NULL);
+        }
+        College college = collegeRepository.findById(collegeId).orElse(null);
+        if (college == null){   //学院不存在
+            throw new UserException(UserResultEnum.COLLEGE_NULL);
+        }
+        if(mail == null){
+            throw new UserException(UserResultEnum.NO_MAIL);
+        }
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null){
+            throw new UserException(UserResultEnum.USER_NOT_FIND);
+        }
 
         user.setId(userId);
-        user.setPassword(user.getPassword());
+        user.setName(name);
+        user.setPhone(phone);
 
-        int n = 0;
-        int ch = 0;
-        int len = user.getPassword().length();
-        if (len <8 || len >225){
-            throw new UserException(UserResultEnum.PASSWORD_MIN_MAX);
+        if ("男".equals(sex)){
+            user.setSex(true);
+        }else if("女".equals(sex)){
+            user.setSex(false);
+        }else {
+            throw new UserException(UserResultEnum.ERROR_SEX);
         }
-        char []chars = user.getPassword().toCharArray();
-        for(int i=0; i<len; i++){
-            if(Character.isDigit(chars[i])){
-                n++;
-            }else if (Character.isLowerCase(chars[i])){
-                ch++;
-            }
-        }
-        if (n == len){
-            throw new UserException(UserResultEnum.PASSWORD_IS_JUST_NUM);
-        }
-        if (ch == len){
-            throw new UserException(UserResultEnum.PASSWOR_IS_JUST_ZM);
-        }
+        user.setMail(mail);
+        userRepository.saveAndFlush(user);
+        student.setStudentNum(studentNum);
+        student.setMajorId(majorId);
+        student.setCollegeId(collegeId);
+        studentRepository.saveAndFlush(student);
 
-        userRepository.save(user);
-        return null;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id",user.getId());
+        jsonObject.put("name",user.getName());
+        jsonObject.put("phone",user.getPhone());
+        jsonObject.put("sex",user.getSex()?"男":"女");
+        jsonObject.put("mail",user.getMail());
+        jsonObject.put("studentNum",student.getStudentNum());
+        jsonObject.put("majorId",student.getMajorId());
+        jsonObject.put("collegeId",student.getCollegeId());
+
+        return jsonObject;
+
     }
 
     /**
@@ -876,21 +919,65 @@ public class UserService {
         for (Message message : allMessage){
             JSONObject jsonObject = new JSONObject();
             if(send.equals(message.getSend()) && accept.equals(message.getAccet())){
+                jsonObject.put("messageId",message.getMessageId());
                 jsonObject.put("send",message.getSend());
+                jsonObject.put("accept",message.getAccet());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
+                jsonObject.put("state",message.isState());
             }
             else{
+                jsonObject.put("messageId",message.getMessageId());
                 jsonObject.put("accept",message.getSend());
+                jsonObject.put("send",message.getAccet());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
                 jsonObject.put("name",acceptUser.getName());
                 jsonObject.put("isOnline",acceptUser.getOnline());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
+                jsonObject.put("state",message.isState());
             }
             jsonObjects.add(jsonObject);
         }
         return jsonObjects;
+    }
+
+    /**
+     * 获取对应用户的个人信息（非隐私部分）
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @return jsonObject
+     */
+
+    public Object getUser(Integer userId){
+
+        User user =  userRepository.findById(userId).orElse(null);
+        HeadImage headImage = headImageRepository.findByUserId(userId);
+        if (user == null){
+            throw new UserException(UserResultEnum.USER_NOT_FIND);
+        }
+        if (headImage == null){
+            throw new UserException(UserResultEnum.NO_AVATAR_EXISTS);
+        }
+        if (user.getName() == null || user.getCollectPostNum() == null ||
+                user.getFollowNum() == null || user.getFollowNum() == null||
+                user.getPostNum() ==null || user.getCommentNum()==null){
+            throw new UserException(UserResultEnum.INCOMPLETE_USER_INFORMATION);
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id",user.getId());
+        jsonObject.put("name",user.getName());
+        jsonObject.put("collectPostNum",user.getCollectPostNum());
+        jsonObject.put("followNum",user.getFollowNum());
+        jsonObject.put("postNum",user.getPostNum());
+        jsonObject.put("commentNum",user.getCommentNum());
+        jsonObject.put("certified",user.getCertified());
+        jsonObject.put("online",user.getOnline());
+        jsonObject.put("sex",user.getSex()?"男":"女");
+        jsonObject.put("imageUrl",headImage.getImageUrl());
+        return jsonObject;
     }
 }

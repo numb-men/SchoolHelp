@@ -95,15 +95,6 @@ public class UserServiceTest {
         return new Attention(1,2,new Date());
     }
 
-    /**
-     *newuserFind
-     *
-     * @author 星夜、痕
-     * @since 2019/5/24
-     **/
-    private UserFind newUserFind(){
-        return new UserFind();
-    }
 
     /**
      *newStudent
@@ -619,6 +610,7 @@ public class UserServiceTest {
      * @author 星夜、痕
      * @since 2019/5/24
      **/
+    /*
     @Test
     public void updateUser(){
         User user1 = newUser();
@@ -635,7 +627,7 @@ public class UserServiceTest {
         Assert.assertEquals("name",user1.getName());
         userRepository.delete(user1);
     }
-
+*/
     /**
      * 测试
      * 获取对应用户的帖子列表
