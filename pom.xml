@@ -10,10 +10,10 @@
     </parent>
     <groupId>com.zgdr</groupId>
     <artifactId>schoolhelp</artifactId>
-    <version>0.1.8</version>
+    <version>1.0.7</version>
     <name>schoolhelp</name>
     <description>SchoolHelp</description>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <java.version>1.8</java.version>
