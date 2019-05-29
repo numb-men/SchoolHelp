@@ -87,4 +87,28 @@ public class MessageServiceTest {
         }
         messageRepository.delete(message);
     }
+/*
+    @Test
+    public void getChatList(){
+        Message message1 = new Message(sendUser.getId(), accetUser.getId(),
+                "yaschabcbajbvjhabdhjbv", "聊天", new Date());
+        Message message2 = new Message(sendUser.getId(), accetUser.getId(),
+                "scabchabshjcbjascs", "吵架", new Date());
+        Message message3 = new Message(sendUser.getId(), accetUser.getId(),
+                "yaschabcbajbvjhabdhjbv", "说梦话", new Date());
+        message = messageRepository.save(message);
+        try{
+            message1 = messageRepository.save(message1);
+            Thread.sleep(10);
+            message2 = messageRepository.save(message2);
+            Thread.sleep(10);
+            message3 = messageRepository.save(message3);
+        }catch (InterruptedException E){
+
+        }
+        messageService.getChetList(accetUser.getId()).get("latedMessage");
+
+
+
+    }*/
 }
