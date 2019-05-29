@@ -262,9 +262,11 @@ public class UserService {
         if (collectRepository.findByPostIdAndUserIdIn(postId, userId) != null){
             throw new UserException(UserResultEnum.REPEAT_COLLECT);
         }
+        Date date = new Date();
         Collect collect = new Collect();
         collect.setUserId(userId);
         collect.setPostId(postId);
+        collect.setCoolectTiem(date);
         collectRepository.saveAndFlush(collect);
         return collect.getCollectId();
     }
@@ -742,7 +744,7 @@ public class UserService {
      * @param
      * @return null
      */
-    public Object updateUser(Integer userId,String name,String phone,String sex,Integer studentNum,Integer majorId, Integer collegeId,String mail) {
+    public Object updateUser(Integer userId,String name,String phone,String sex,String studentNum,String major, String college,String mail) {
 
         if (name == null){
             throw new UserException(UserResultEnum.NAME_NULL);
@@ -750,27 +752,37 @@ public class UserService {
         if (sex == null){
             throw new UserException(UserResultEnum.SEX_NULL);
         }
+        /*
         Student student = studentRepository.findAllByUserId(userId).get(0);
         if (student == null){
             throw new UserException(UserResultEnum.NO_REGISTER);
         }
+        */
         if (studentNum == null){
             throw new UserException(UserResultEnum.SCHOOLNAME_NULL);
         }
-        if (majorId == null){
+
+        if (major == null){
             throw new UserException(UserResultEnum.MAJOR_NULL);
         }
+        /*
         Major major = majorRepository.findById(majorId).orElse(null);
+
         if (major == null){//专业不存在
             throw new UserException(UserResultEnum.MAJOR_NULL);
         }
-        if (collegeId == null){
+        */
+
+        if (college == null){
             throw new UserException(UserResultEnum.COLLEGE_NULL);
         }
+        /*
         College college = collegeRepository.findById(collegeId).orElse(null);
+
         if (college == null){   //学院不存在
             throw new UserException(UserResultEnum.COLLEGE_NULL);
         }
+        */
         if(mail == null){
             throw new UserException(UserResultEnum.NO_MAIL);
         }
@@ -779,23 +791,22 @@ public class UserService {
             throw new UserException(UserResultEnum.USER_NOT_FIND);
         }
 
+        user.setMajor(major);
         user.setId(userId);
         user.setName(name);
         user.setPhone(phone);
-
+        user.setCollege(college);
+        user.setStudentNum(studentNum);
         if ("男".equals(sex)){
             user.setSex(true);
-        }else if("女".equals(sex)){
+        }else if("女".equals(true)){
             user.setSex(false);
         }else {
             throw new UserException(UserResultEnum.ERROR_SEX);
         }
         user.setMail(mail);
         userRepository.saveAndFlush(user);
-        student.setStudentNum(studentNum);
-        student.setMajorId(majorId);
-        student.setCollegeId(collegeId);
-        studentRepository.saveAndFlush(student);
+
 
 
         JSONObject jsonObject = new JSONObject();
@@ -804,9 +815,9 @@ public class UserService {
         jsonObject.put("phone",user.getPhone());
         jsonObject.put("sex",user.getSex()?"男":"女");
         jsonObject.put("mail",user.getMail());
-        jsonObject.put("studentNum",student.getStudentNum());
-        jsonObject.put("majorId",student.getMajorId());
-        jsonObject.put("collegeId",student.getCollegeId());
+        jsonObject.put("studentNum",user.getStudentNum());
+        jsonObject.put("majorId",user.getMajor());
+        jsonObject.put("collegeId",user.getCollege());
 
         return jsonObject;
 
