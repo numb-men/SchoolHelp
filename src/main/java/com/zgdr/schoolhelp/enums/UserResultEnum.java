@@ -36,7 +36,10 @@ public enum UserResultEnum implements ResultEnum {
     PASSWORD_MIN_MAX(-52,"密码的长度应在8-255之间"),
     REPORT_NULL(-53,"举报消息不能为空"),
     REPEATED_ATTENTION(-56,"你已关注该用户"),
-    SEND_SELF(-57,"不能自己给自己发信息")
+    SEND_SELF(-57,"不能自己给自己发信息"),
+    INCOMPLETE_USER_INFORMATION(-58,"对应用户信息不完整"),
+    NO_AVATAR_EXISTS(-59,"用户头像信息不存在");
+
     ;
 
     private Integer code;

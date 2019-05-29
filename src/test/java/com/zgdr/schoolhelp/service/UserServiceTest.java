@@ -100,9 +100,7 @@ public class UserServiceTest {
      * @author 星夜、痕
      * @since 2019/5/24
      **/
-    private UserFind newUserFind(){
-        return new UserFind();
-    }
+
 
     /**
      *newStudent

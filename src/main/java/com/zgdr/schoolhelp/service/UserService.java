@@ -587,9 +587,11 @@ public class UserService {
         if (user == null){
             throw new UserException(UserResultEnum.ID_NOT_FOUND);
         }
+        Date date = new Date();
         Message message = new Message();
         message.setAccet(accept);
         message.setMessageContent(messageContent);
+        message.setSendTime(date);
         message.setSend(send);
         messgaeRepository.saveAndFlush(message);
         return message.getMessageId();
@@ -845,6 +847,14 @@ public class UserService {
 
         User sendUser =  userRepository.findById(send).orElse(null);
         User acceptUser =  userRepository.findById(accept).orElse(null);
+        HeadImage headImage1 = headImageRepository.findByUserId(send);
+        HeadImage headImage2 = headImageRepository.findByUserId(accept);
+        if (headImage1 == null || headImage2 == null){
+            throw new UserException(UserResultEnum.NO_AVATAR_EXISTS);
+        }
+        if(headImage1.getImageUrl() == null || headImage2.getImageUrl() == null){
+            throw new UserException(UserResultEnum.NO_AVATAR_EXISTS);
+        }
         if (send.equals(accept)){
             throw new UserException(UserResultEnum.SEND_SELF);
         }
@@ -876,21 +886,65 @@ public class UserService {
         for (Message message : allMessage){
             JSONObject jsonObject = new JSONObject();
             if(send.equals(message.getSend()) && accept.equals(message.getAccet())){
+                jsonObject.put("messageId",message.getMessageId());
                 jsonObject.put("send",message.getSend());
+                jsonObject.put("accept",message.getAccet());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
+                jsonObject.put("state",message.isState());
             }
             else{
+                jsonObject.put("messageId",message.getMessageId());
                 jsonObject.put("accept",message.getSend());
+                jsonObject.put("send",message.getAccet());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
                 jsonObject.put("name",acceptUser.getName());
                 jsonObject.put("isOnline",acceptUser.isOnline());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
+                jsonObject.put("state",message.isState());
             }
             jsonObjects.add(jsonObject);
         }
         return jsonObjects;
+    }
+
+    /**
+     * 获取对应用户的个人信息（非隐私部分）
+     * @author 星夜、痕
+     * @since 2019/4/29
+     *
+     * @return jsonObject
+     */
+
+    public Object getUser(Integer userId){
+
+        User user =  userRepository.findById(userId).orElse(null);
+        HeadImage headImage = headImageRepository.findByUserId(userId);
+        if (user == null){
+            throw new UserException(UserResultEnum.USER_NOT_FIND);
+        }
+        if (headImage == null){
+            throw new UserException(UserResultEnum.NO_AVATAR_EXISTS);
+        }
+        if (user.getName() == null || user.getCollectPostNum() == null ||
+                user.getFollowNum() == null || user.getFollowNum() == null||
+                user.getPostNum() ==null || user.getCommentNum()==null){
+                throw new UserException(UserResultEnum.INCOMPLETE_USER_INFORMATION);
+        }
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id",user.getId());
+        jsonObject.put("name",user.getName());
+        jsonObject.put("collectPostNum",user.getCollectPostNum());
+        jsonObject.put("followNum",user.getFollowNum());
+        jsonObject.put("postNum",user.getPostNum());
+        jsonObject.put("commentNum",user.getCommentNum());
+        jsonObject.put("certified",user.isCertified());
+        jsonObject.put("online",user.isOnline());
+        jsonObject.put("sex",user.getSex());
+        jsonObject.put("imageUrl",headImage.getImageUrl());
+        return jsonObject;
     }
 }

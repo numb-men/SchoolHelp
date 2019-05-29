@@ -6,10 +6,7 @@ import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.Setting;
 import com.zgdr.schoolhelp.domain.User;
-import com.zgdr.schoolhelp.domain.UserFind;
-import com.zgdr.schoolhelp.enums.PostResultEnum;
 import com.zgdr.schoolhelp.enums.UserResultEnum;
-import com.zgdr.schoolhelp.exception.PostException;
 import com.zgdr.schoolhelp.exception.UserException;
 import com.zgdr.schoolhelp.repository.*;
 import com.zgdr.schoolhelp.service.UserService;
@@ -23,8 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * UserController
@@ -439,25 +434,8 @@ public class UserController {
 
     @GetMapping(value = "/{userId}")
     public Result getUser(@PathVariable("userId") Integer userId){
-        User user = new User();
-        user  = userRepository.findById(userId).orElse(null);
-        UserFind userFind = new UserFind();
-        userFind.setId(user.getId());
-        userFind.setName(user.getName());
-        userFind.setPhone(user.getPhone());
-        userFind.setPassword(user.getPassword());
-        userFind.setSex(user.getSex());
-        userFind.setBirthdate(user.getBirthdate());
-        userFind.setPoints(user.getPoints());
-        userFind.setCollectPostNum(user.getCollectPostNum());
-        userFind.setFollowNum(user.getFollowNum());
-        userFind.setRole(user.getRole());
-        userFind.setCertified(user.isCertified());
-        userFind.setOnline(user.isOnline());
-        userFind.setRegisterTime(user.getRegisterTime());
-        userFind.setLastTime(user.getLastTime());
 
-        return Result.success(userFind);
+        return Result.success(userService.getUser(userId));
 
     }
 
@@ -570,7 +548,7 @@ public class UserController {
      **/
 
     @UserLoginToken
-    @GetMapping(value = "/message/Corresponding")
+    @GetMapping(value = "/message/user")
     public Result newMessage(@RequestParam Integer accept,
                              HttpServletRequest httpServletRequest){
         Integer send  = TokenUtil.getUserIdByRequest(httpServletRequest);
