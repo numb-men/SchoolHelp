@@ -59,6 +59,9 @@ public class PostService {
     @Resource
     private SearchRepository searchRepository;
 
+    @Resource
+    private HotWordRepository hotWordRepository;
+
 
     /**
      * 返回全部贴子信息
@@ -422,16 +425,56 @@ public class PostService {
         return postRepository.findPostsByPostType(postType.toString());
     }
 
+    /**
+     * 用户搜索帖子
+     * @author yangji
+     * @since 2019/5/29
+     *
+     * @param  keyword 关键词
+     * @return  List<Post>
+     */
     public List<Post>  findPostByKeyword(String keyword, Integer userId){
+        findHotWord(keyword);
         Search search=new Search(userId, keyword, new Date(), false);
         searchRepository.save(search);
         return postRepository.findPostsByKeyword(keyword);
     }
 
+    /**
+     * 游客搜索帖子
+     * @author yangji
+     * @since 2019/5/29
+     *
+     * @param  keyword 关键词
+     * @return  List<Post>
+     */
     public List<Post>  findPostByKeyword(String keyword){
+        findHotWord(keyword);
         return postRepository.findPostsByKeyword(keyword);
     }
 
+    /**
+     * 将满足热词的搜索记录存入数据库
+     * @author kai
+     * @since 2019/5/29
+     *
+     * @param  keyWord 关键词
+     */
+    private Object findHotWord(String keyWord){
+        if(keyWord.length()>5){
+            return null;
+        }else{
+            HotWord hotWord = hotWordRepository.findByHotWord(keyWord);
+            if(hotWord==null){
+                hotWordRepository.save(new HotWord(keyWord, 1,new Date()));
+            }else{
+                hotWord.setTimes(hotWord.getTimes()+1);
+                hotWord.setRecentTime(new Date());
+                hotWordRepository.save(hotWord);
+            }
+        }
+        return null;
+    }
 
     /**
      * 结贴
@@ -483,14 +526,33 @@ public class PostService {
         return user.getPoints()<post.getPoints();
     }
 
+    /**
+     * 热词
+     * @author kai
+     * @since 2019/5/29
+     *
+     * @return  List<String>
+     */
     public List<String> hotWord(){
-        List x = new ArrayList();
-        x.add("二手书交易");
-        x.add("面试");
-        x.add("实习");
-        x.add("生活");
-        x.add("运动");
-        x.add("学习");
-        return  x;
+        List<String> hotwords = new ArrayList<>();
+        //按次数递减排序
+        List<HotWord> hotWords = hotWordRepository.findAllByOrderByTimesDesc();
+        List<HotWord> hotWords1 = new ArrayList<>();
+        //记录大于200条时，取次数排行前50条，按时间最近排序
+        if(hotWords.size() > 200){
+            for (int i = 0;i < 50; i++){
+                hotWords1.add(hotWords.get(i));
+            }
+            hotWords1.sort((x, y) -> y.getRecentTime().compareTo(x.getRecentTime()));
+            for (int i = 0; i<5; i++){
+                hotwords.add(hotWords1.get(i).getHotWord());
+            }
+            return hotwords;
+        }
+       Integer length= hotWords.size()<5 ? hotWords.size() : 5;
+        for (int i = 0; i<length; i++){
+            hotwords.add(hotWords.get(i).getHotWord());
+        }
+       return hotwords;
     }
 }
