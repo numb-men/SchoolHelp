@@ -62,12 +62,14 @@ public class PostServiceTest {
     @Before
     public void setup(){
 
-        user = new User("name", "13956708901", "123456d78", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
-        user1 = new User("name", "13605678903", "12345378", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        user = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
+        user1 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
         user = userRepository.saveAndFlush(user);
         user1 = userRepository.saveAndFlush(user1);
         headImage = new HeadImage("yudguysgueyf",user.getId());

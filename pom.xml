@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zgdr</groupId>
     <artifactId>schoolhelp</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <name>schoolhelp</name>
     <description>SchoolHelp</description>
     <packaging>war</packaging>

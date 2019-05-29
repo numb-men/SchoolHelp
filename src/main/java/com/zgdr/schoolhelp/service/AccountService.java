@@ -1,6 +1,5 @@
 package com.zgdr.schoolhelp.service;
 
-import ch.qos.logback.core.util.StringCollectionUtil;
 import com.zgdr.schoolhelp.domain.HeadImage;
 import com.zgdr.schoolhelp.domain.User;
 import com.zgdr.schoolhelp.enums.AccountResultEnum;
@@ -9,7 +8,6 @@ import com.zgdr.schoolhelp.repository.HeadImageRepository;
 import com.zgdr.schoolhelp.repository.UserRepository;
 import com.zgdr.schoolhelp.utils.StringUtil;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
@@ -53,7 +51,7 @@ public class AccountService {
         User user = userRepository.findByPhoneIn(phone);
         if (user == null) {
             user = new User();
-            user.setName("用户" + StringUtil.getRandomString(10));
+            user.setName("用户" + StringUtil.getRandomString(5));
             user.setPhone(phone);
             user.setPassword(password);
             user = userRepository.saveAndFlush(user);

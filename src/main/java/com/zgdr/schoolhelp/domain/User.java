@@ -42,7 +42,19 @@ public class User{
 
     /* 性别 */
     private Boolean sex = true;
-    
+
+    /* 学院 */
+    private String college = "";
+
+    /* 专业 */
+    private String major = "";
+
+    /* 学号 */
+    private String studentNum = "";
+
+    /* 邮箱 */
+    private String mail = "";
+
     /* 生日 */
     private Date birthdate = new Date();
 
@@ -108,12 +120,44 @@ public class User{
         this.password = password;
     }
 
-    public boolean getSex() {
+    public Boolean getSex() {
         return sex;
     }
 
-    public void setSex(boolean sex) {
+    public void setSex(Boolean sex) {
         this.sex = sex;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public String getMajor() {
+        return major;
+    }
+
+    public void setMajor(String major) {
+        this.major = major;
+    }
+
+    public String getStudentNum() {
+        return studentNum;
+    }
+
+    public void setStudentNum(String studentNum) {
+        this.studentNum = studentNum;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public Date getBirthdate() {
@@ -164,27 +208,27 @@ public class User{
         this.commentNum = commentNum;
     }
 
-    public boolean getRole() {
+    public Boolean getRole() {
         return role;
     }
 
-    public void setRole(boolean role) {
+    public void setRole(Boolean role) {
         this.role = role;
     }
 
-    public boolean isCertified() {
+    public Boolean getCertified() {
         return isCertified;
     }
 
-    public void setCertified(boolean certified) {
+    public void setCertified(Boolean certified) {
         isCertified = certified;
     }
 
-    public boolean isOnline() {
+    public Boolean getOnline() {
         return isOnline;
     }
 
-    public void setOnline(boolean online) {
+    public void setOnline(Boolean online) {
         isOnline = online;
     }
 
@@ -204,19 +248,24 @@ public class User{
         this.lastTime = lastTime;
     }
 
-    public User(@NotBlank(message = "用户名不能为空") @Length(max = 30, message = "用户名过长") String name,
+    public User(@NotBlank(message = "用户名不能为空")
+                @Length(max = 30, message = "用户名过长") String name,
                 @NotBlank(message = "手机号不能为空")
                 @Length(min = 11, max = 11, message = "手机长度应为11") String phone,
                 @NotBlank(message = "密码不能为空")
                 @Length(max = 255, min = 8, message = "密码的长度应在8-255之间") String password,
-                Boolean sex, Date birthdate, Integer points, Integer collectPostNum,
-                Integer followNum, Integer postNum, Integer commentNum, Boolean role, Boolean isCertified,
+                Boolean sex, String college, String major, String studentNum, String mail,
+                Date birthdate, Integer points, Integer collectPostNum, Integer followNum,
+                Integer postNum, Integer commentNum, Boolean role, Boolean isCertified,
                 Boolean isOnline, Date registerTime, Date lastTime) {
-
         this.name = name;
         this.phone = phone;
         this.password = password;
         this.sex = sex;
+        this.college = college;
+        this.major = major;
+        this.studentNum = studentNum;
+        this.mail = mail;
         this.birthdate = birthdate;
         this.points = points;
         this.collectPostNum = collectPostNum;
@@ -230,7 +279,7 @@ public class User{
         this.lastTime = lastTime;
     }
 
-    public User(){
+    public User() {
     }
 
     @Override
@@ -241,6 +290,10 @@ public class User{
                 ", phone='" + phone + '\'' +
                 ", password='" + password + '\'' +
                 ", sex=" + sex +
+                ", college='" + college + '\'' +
+                ", major='" + major + '\'' +
+                ", studentNum='" + studentNum + '\'' +
+                ", mail='" + mail + '\'' +
                 ", birthdate=" + birthdate +
                 ", points=" + points +
                 ", collectPostNum=" + collectPostNum +

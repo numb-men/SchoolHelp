@@ -452,8 +452,8 @@ public class UserController {
         userFind.setCollectPostNum(user.getCollectPostNum());
         userFind.setFollowNum(user.getFollowNum());
         userFind.setRole(user.getRole());
-        userFind.setCertified(user.isCertified());
-        userFind.setOnline(user.isOnline());
+        userFind.setCertified(user.getCertified());
+        userFind.setOnline(user.getOnline());
         userFind.setRegisterTime(user.getRegisterTime());
         userFind.setLastTime(user.getLastTime());
 

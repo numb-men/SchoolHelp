@@ -823,7 +823,7 @@ public class UserService {
             jsonObject.put("id",user.getId());
             jsonObject.put("name",user.getName());
             jsonObject.put("followNum",user.getFollowNum());
-            jsonObject.put("isCertified", user.isCertified());
+            jsonObject.put("isCertified", user.getCertified());
 
             HeadImage headImage = headImages.get(i);
             jsonObject.put("imageUrl",headImage.getImageUrl());
@@ -885,7 +885,7 @@ public class UserService {
                 jsonObject.put("accept",message.getSend());
                 jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
                 jsonObject.put("name",acceptUser.getName());
-                jsonObject.put("isOnline",acceptUser.isOnline());
+                jsonObject.put("isOnline",acceptUser.getOnline());
                 jsonObject.put("messageContent",message.getMessageContent());
                 jsonObject.put("sendTime",message.getSendTime());
             }
