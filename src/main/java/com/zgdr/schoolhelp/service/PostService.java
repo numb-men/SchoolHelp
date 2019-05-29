@@ -99,6 +99,14 @@ public class PostService {
         if (!comment.getUserId().equals(userId)){
             throw new UserException(UserResultEnum.NO_POWER);
         }
+        User user = userRepository.findById(userId).orElse(null);
+        user.setId(userId);
+        user.setCommentNum(user.getCommentNum() - 1);
+        Post post = postRepository.findByPostIdIn(comment.getPostId());
+        post.setPostId(comment.getPostId());
+        post.setCommentNum(post.getCommentNum() - 1);
+        postRepository.saveAndFlush(post);
+        userRepository.saveAndFlush(user);
          commentRepository.delete(comment);
         return null;
     }
@@ -249,6 +257,10 @@ public class PostService {
         commentRepository.deleteByPostId(postId);
         approvalRepository.deleteByPostId(postId);
         postImageRepostiry.deleteAllByPostId(postId);
+
+        User user = userRepository.findById(userId).orElse(null);
+        user.setPostNum(user.getPostNum()-1);
+        userRepository.saveAndFlush(user);
         postRepository.delete(post);
     }
 

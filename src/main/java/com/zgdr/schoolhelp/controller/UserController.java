@@ -452,13 +452,13 @@ public class UserController {
     public Result updateUser (@RequestParam String name,
                               @RequestParam String phone,
                               @RequestParam String sex,
-                              @RequestParam Integer studentNum,
-                              @RequestParam Integer majorId,
-                              @RequestParam Integer collegeId,
+                              @RequestParam String studentNum,
+                              @RequestParam String major,
+                              @RequestParam String college,
                               @RequestParam String mail,
                               HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        return Result.success(userService.updateUser(userId,name,phone,sex, studentNum,majorId,collegeId,mail));
+        return Result.success(userService.updateUser(userId,name,phone,sex, studentNum,major,college,mail));
     }
 
     /**
