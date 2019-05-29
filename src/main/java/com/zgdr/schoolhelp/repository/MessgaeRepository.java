@@ -27,5 +27,5 @@ public interface MessgaeRepository extends JpaRepository<Message,Integer> {
 
     List<Message> findBySendOrderBySendTimeAsc(Integer sendId);
 
-    List<Message> findByAccetAndSendOrderBySendDesc(Integer acceId, Integer sendId);
+    List<Message> findByAccetAndSendOrderBySendAsc(Integer acceId, Integer sendId);
 }
