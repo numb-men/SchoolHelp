@@ -319,7 +319,7 @@ public class UserService {
             jsonObject.put("postId",post.getPostId());
             jsonObject.put("title",post.getTitle());
             jsonObject.put("content",post.getContent());
-            jsonObject.put("coolectTime",t[k]);
+            jsonObject.put("collectTime",t[k]);
 
             HeadImage headImage = headImages.get(k);
             jsonObject.put("imageUrl",headImage.getImageUrl());
