@@ -103,8 +103,9 @@ public class UserTest {
     }
 
     private User newUser(){
-        return new User("name", "12345678901", "12345678", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        return new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
     }
 }

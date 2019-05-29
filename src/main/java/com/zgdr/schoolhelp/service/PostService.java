@@ -142,6 +142,7 @@ public class PostService {
         post.setHelpUserId(-1);
         Date date = new Date();
         post.setIssueTime(date);
+        System.out.println(headImageRepository.findByUserId(userId));
         String headImage = headImageRepository.findByUserId(userId).getImageUrl();
         if(headImage == null){
             throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
@@ -484,12 +485,12 @@ public class PostService {
 
     public List<String> hotWord(){
         List x = new ArrayList();
-      //  x.add("二手书交易");
-       // x.add("面试");
-       // x.add("实习");
-       // x.add("生活");
-       // x.add("运动");
-       // x.add("学习");
+        x.add("二手书交易");
+        x.add("面试");
+        x.add("实习");
+        x.add("生活");
+        x.add("运动");
+        x.add("学习");
         return  x;
     }
 }

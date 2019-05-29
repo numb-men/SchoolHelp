@@ -18,6 +18,11 @@ public interface MessgaeRepository extends JpaRepository<Message,Integer> {
 
     List<Message> findByAccetOrderBySendTimeAsc(Integer accet);
 
+    List<Message> findByAccetOrderBySendTimeAsc(Integer accet);
+
+    //按发送者 send 和接受者查询 accet
+    List<Message> findBySendAndAccet(Integer send,Integer accet);
+
     List<Message> findByAccetAndState(Integer userId, boolean state);
 
     List<Message> findBySendAndAccetAndState(Integer sendId, Integer accetId, boolean state);
@@ -25,6 +30,4 @@ public interface MessgaeRepository extends JpaRepository<Message,Integer> {
     List<Message> findBySendOrderBySendTimeAsc(Integer sendId);
 
     List<Message> findByAccetAndSendOrderBySendDesc(Integer acceId, Integer sendId);
-
-
 }

@@ -51,5 +51,10 @@ public class MessageController {
         return Result.success(messageService.getChetList(userId));
     }
 
-
+    @UserLoginToken
+    @GetMapping(value = "/message/chatlist")
+    public Result getChatList(HttpServletRequest httpServletRequest){
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(messageService.getChetList(userId));
+    }
 }

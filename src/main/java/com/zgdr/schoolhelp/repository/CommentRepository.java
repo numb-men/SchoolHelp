@@ -50,4 +50,11 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
 
       //通过用户ID查询评论表
       public List<Comment> findAllByUserId(Integer userId);
+
+      /**
+       * 获取对应用户的所有帖子，按时间倒序
+       * @author hengyumo
+       * @since 2019/5/28
+       */
+      List<Comment> findAllByUserIdOrderByCommentTimeDesc(Integer userId);
 }

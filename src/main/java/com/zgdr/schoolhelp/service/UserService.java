@@ -1,6 +1,7 @@
 package com.zgdr.schoolhelp.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.*;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
@@ -17,12 +18,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Date;
-
+import java.text.SimpleDateFormat;
+import javax.validation.constraints.Max;
+import java.util.*;
 
 /**
  * UserService
@@ -272,14 +270,13 @@ public class UserService {
 
     /**
      * 获取用户收藏列表
-     * @author hengyumo
-     * @since 2019/4/27
+     * @author hengyumo（星夜、衡修改）
+     * @since 2019/5/27
      *
      * @param userId 用户id
-     * @return java.util.List<java.lang.Integer> 帖子postId列表
+     * @return jsonObjects
      */
     public Object getUserCollects(Integer userId) {
-
         List<Collect> collects = collectRepository.findByUserId(userId);
 
         List<Integer> postIds = new ArrayList<>();
@@ -288,14 +285,6 @@ public class UserService {
         for (Collect collect : collects) {
             postIds.add(collect.getPostId());
             num ++ ;
-        }
-
-        //数组保存帖子id
-        Integer [] postIds1 = new Integer[num];
-        int p1 = 0;
-        for (Collect collect : collects) {
-            postIds1[p1] = collect.getPostId();
-            p1++;
         }
 
         //找到收藏时间
@@ -308,46 +297,41 @@ public class UserService {
 
         //由帖子id找到帖子
         List<Post> posts = postRepository.findAllById(postIds);
-        List<Integer> userIds = new ArrayList<>();
 
-        for(Post post : posts){
+        //
+        List<Integer> userIds = new ArrayList<>();
+        for (Post post : posts){
             userIds.add(post.getUserId());
         }
 
-        //由用户id找到用户
         List<User> users = userRepository.findAllById(userIds);
 
-        int j = 0;
-        String [][] s = new String[num][5];
+        List<HeadImage> headImages = new ArrayList<>();
 
-        for (Post post : posts){
-            s[j][0] += "帖子标题：";
-            s[j][0] += post.getTitle();
-
-            s[j][1] += "帖子内容：";
-            s[j][1] += post.getContent();
-
-            s[j][2] += "收藏时间：";
-            s[j][2] += t[j];
-
-
-            j++;
+        for (User user : users){
+            HeadImage headImage = headImageRepository.getHeadImageByUserId(user.getId());
+            headImages.add(headImage);
         }
         int k = 0;
-        for (User user: users){
+        List<JSONObject> userCollects = new ArrayList<>();
+        for (Post post : posts){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("postId",post.getPostId());
+            jsonObject.put("title",post.getTitle());
+            jsonObject.put("content",post.getContent());
+            jsonObject.put("collectTime",t[k]);
 
-            s[k][3] += "用户姓名：";
-            s[k][3] += user.getName();
+            HeadImage headImage = headImages.get(k);
+            jsonObject.put("imageUrl",headImage.getImageUrl());
 
-            s[k][4] += "用户头像：";
-            s[k][4] += headImageRepository.getHeadImageByUserId(user.getId());
+            User user = users.get(k);
+            jsonObject.put("name",user.getName());
 
+            userCollects.add(jsonObject);
             k++;
         }
 
-        return  s;
-
-
+        return userCollects;
     }
 
     /**
@@ -378,20 +362,23 @@ public class UserService {
      * @since 2019/4/27
      *
      * @param userId 用户id
-     * @return Map<String, Integer> 搜索历史和搜索记录id
+     * @return java.util.List<JSONobject> 搜索历史
      */
-    public Map<Integer, String> getUserSearchHistory(Integer userId) {
+    public List<JSONObject> getUserSearchHistory(Integer userId) {
         List<Search> searches = searchRepository.findAllByUserIdOrderBySearchTimeDesc(userId);
-      // List<String> searchContents = new ArrayList<>();
-        Map<Integer, String> map = new HashMap<>();
+        List<JSONObject> searchContents = new ArrayList<>();
         for (Search search : searches) {
             if (! search.isHided()) {
                 // 如果搜索历史未被隐藏
-               // searchContents.add(search.getContent());
-                map.put(search.getSearchId(), search.getContent());
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("searchId", search.getSearchId());
+                jsonObject.put("userId", search.getUserId());
+                jsonObject.put("content", search.getContent());
+                jsonObject.put("searchTime", search.getSearchTime());
+                searchContents.add(jsonObject);
             }
         }
-        return map;
+        return searchContents;
     }
 
     /**
@@ -413,6 +400,40 @@ public class UserService {
         search.setHided(true);
         return searchRepository.save(search);
 
+    }
+
+    /**
+     * 删除用户某条搜索
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param userId 用户Id
+     * @param searchIdDeleted 待删除的搜索Id
+     * @return null
+     */
+    public Object deleteASearchHistory(Integer userId, Integer searchIdDeleted) {
+        Search search = searchRepository.findBySearchIdIn(searchIdDeleted);
+        if (search == null){
+            throw new UserException(UserResultEnum.COLLLECT_ID_NOT_FOUND); // 收藏不存在
+        } else if (! search.getUserId().equals(userId)){
+            throw new UserException((UserResultEnum.NO_POWER)); // 只能删除自己的收藏
+        }
+
+        search.setHided(true);
+        searchRepository.save(search);
+        return null;
+    }
+
+    /**
+     * 获取对应用户的所有帖子，按时间倒序
+     * @author hengyumo
+     * @since 2019/5/28
+     *
+     * @param userId 用户Id
+     * @return List<Comment>
+     */
+    public List<Comment> getUserComments(Integer userId) {
+        return commentRepository.findAllByUserIdOrderByCommentTimeDesc(userId);
     }
 
     /**
@@ -517,6 +538,9 @@ public class UserService {
         if (attentionUserId.equals(beAttentionUserId))
         {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
+        }
+        if (attentionRepository.findByAttentionUserIdAndBeAttentionUserId(attentionUserId,beAttentionUserId)!=null){
+            throw new UserException(UserResultEnum.REPEATED_ATTENTION);
         }
         Attention attention = new Attention();
         attention.setAttentionUserId(attentionUserId);
@@ -770,7 +794,7 @@ public class UserService {
      * @author 星夜、痕
      * @since 2019/5/27
      *
-     * @return postIds
+     * @return jsonObjects
      **/
 
     public Object getUserAttention(Integer usrId){
@@ -778,36 +802,95 @@ public class UserService {
         List<Attention> attentions = attentionRepository.findAllByAttentionUserId(usrId);
         List<Integer> beAttentionUserIds = new ArrayList<>();
 
-        int num = 0;
         for (Attention attention : attentions){
             beAttentionUserIds.add(attention.getBeAttentionUserId());
-            num++;
         }
         List<User> users =  userRepository.findAllById(beAttentionUserIds);
 
-        String [][] str = new String[num][4];
-        int i = 0;
-        for(User user : users){
 
+        List<JSONObject> jsonObjects = new ArrayList<>();
 
-            str[i][0] += "用户名：";
-            str[i][0] +=  user.getName();
+        List<HeadImage> headImages = new ArrayList<>();
 
-            str[i][1] += "用户粉丝数：";
-            str[i][1] += user.getFollowNum();
-
-            str[i][2] += "用户是否认证：";
-            str[i][2] += user.isCertified();
-
-            str[i][3] += "用户头像：";
-            str[i][3] += headImageRepository.getHeadImageByUserId(usrId);
-
-            i++;
-
+        for (User user : users){
+            HeadImage headImage = headImageRepository.getHeadImageByUserId(user.getId());
+            headImages.add(headImage);
         }
-        return str;
 
-        //return users;
+        int i = 1;
+        for (User user : users){
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id",user.getId());
+            jsonObject.put("name",user.getName());
+            jsonObject.put("followNum",user.getFollowNum());
+            jsonObject.put("isCertified", user.getCertified());
+
+            HeadImage headImage = headImages.get(i);
+            jsonObject.put("imageUrl",headImage.getImageUrl());
+            jsonObjects.add(jsonObject);
+        }
+
+        return  jsonObjects;
+
     }
 
+    /**
+     * 获取当前用户与对应用户的所有消息
+     * @author 星夜、痕
+     * @since 2019/5/28
+     *
+     * @return jsonObjects
+     **/
+    public Object correspondingMessage(Integer send,Integer accept){
+
+        User sendUser =  userRepository.findById(send).orElse(null);
+        User acceptUser =  userRepository.findById(accept).orElse(null);
+        if (send.equals(accept)){
+            throw new UserException(UserResultEnum.SEND_SELF);
+        }
+        if (acceptUser == null){
+            throw new UserException(UserResultEnum.ID_NOT_FOUND);
+        }
+
+        //消息记录
+        //消息发送时间
+        //当前用户发送给对应用户的消息
+        List<Message> sendUserMessages = messgaeRepository.findBySendAndAccet(send,accept);
+
+        //对应用户发送给当前用户的消息
+        List<Message> acceptUserMessage = messgaeRepository.findBySendAndAccet(accept,send);
+
+        //将两个消息合并在 allMessage中
+        List<Message> allMessage = messgaeRepository.findBySendAndAccet(send,accept);
+        allMessage.addAll(acceptUserMessage);
+
+        Collections.sort(allMessage, new Comparator<Message>() {
+            final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            @Override
+            public int compare(Message o1, Message o2) {
+
+                return (o1.getSendTime().toString()).compareTo(o2.getSendTime().toString());
+            }
+        });
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        for (Message message : allMessage){
+            JSONObject jsonObject = new JSONObject();
+            if(send.equals(message.getSend()) && accept.equals(message.getAccet())){
+                jsonObject.put("send",message.getSend());
+                jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
+                jsonObject.put("messageContent",message.getMessageContent());
+                jsonObject.put("sendTime",message.getSendTime());
+            }
+            else{
+                jsonObject.put("accept",message.getSend());
+                jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
+                jsonObject.put("name",acceptUser.getName());
+                jsonObject.put("isOnline",acceptUser.getOnline());
+                jsonObject.put("messageContent",message.getMessageContent());
+                jsonObject.put("sendTime",message.getSendTime());
+            }
+            jsonObjects.add(jsonObject);
+        }
+        return jsonObjects;
+    }
 }

@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2019/4/17
  * @version 1.0
  */
-//@Ignore // 忽略测试
+@Ignore // 忽略测试
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING) // 按方法名字典顺序进行顺序测试
@@ -64,9 +64,10 @@ public class UserServiceTest {
 
 
     private User newUser(){
-        return new User("name", "13009348901", "12345678dqw", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        return new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
     }
 
     private Post newPost(){
@@ -181,7 +182,7 @@ public class UserServiceTest {
         user.setPhone("12345678922");
         user = userService.createUser(user);
         logger.info(user.toString());
-        Assert.assertTrue(userService.readUserById(user.getId()).isOnline());
+        Assert.assertTrue(userService.readUserById(user.getId()).getOnline());
         userRepository.delete(user);
     }
 
@@ -331,7 +332,7 @@ public class UserServiceTest {
         search.setUserId(user.getId());
         search.setContent("暑假实习");
         search = searchRepository.save(search);
-        String contentFound = userService.getUserSearchHistory(user.getId()).get(search.getSearchId());
+        String contentFound = userService.getUserSearchHistory(user.getId()).get(0).getString("content");
         Assert.assertEquals("暑假实习", contentFound);
         userRepository.delete(user);
         searchRepository.delete(search);
@@ -486,9 +487,10 @@ public class UserServiceTest {
     @Test
     public void attentionUser(){
         User user1 = newUser();
-        User user3 = new User("name", "13900760869", "12345678", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        User user3 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
 
         user1 = userService.createUser(user1);
         user3 = userService.createUser(user3);
@@ -538,9 +540,10 @@ public class UserServiceTest {
     public void theNewMessage(){
         User user1 = newUser();
         User user2 = newUser();
-        User user3 = new User("name", "13600760869", "12345678", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        User user3 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
         user2.setPhone("13045678912");
         user1 = userService.createUser(user1);
         user2 = userService.createUser(user2);
@@ -567,9 +570,10 @@ public class UserServiceTest {
     public void reportPost(){
         User user1 = newUser();
         User user2 = newUser();
-        User user3 = new User("name", "13600760869", "12345678", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        User user3 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
         user2.setPhone("13045678912");
         user1 = userService.createUser(user1);
         user2 = userService.createUser(user2);
@@ -621,9 +625,10 @@ public class UserServiceTest {
         user1.setPassword("dfsfs32132132");
         user1 = userService.createUser(user1);
 
-        User user2 = new User("name", "13645678901", "12345678fdsasfaf", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        User user2 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
 
         userService.updateUser(user1.getId(),user2);
 
@@ -641,9 +646,10 @@ public class UserServiceTest {
 
     @Test
     public void getPosts(){
-        User user2 = new User("name", "13645678901", "12345678fdsasfaf", true, new Date(),
-                100, 10, 5, 1, 2,true, true,
-                true, new Date(), new Date());
+        User user2 = new User("name", "13956708901", "123456d78", true, "数计学院",
+                "软件工程", "221600100", "mo@schoolhelp.com", new Date(),100,
+                10, 5, 1,
+                2,true, true,true, new Date(), new Date());
         user2 = userService.createUser(user2);
 
         Post post = newPost();
