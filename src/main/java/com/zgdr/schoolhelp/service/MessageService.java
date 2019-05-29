@@ -94,8 +94,8 @@ public class MessageService {
             }
             String message;
             Date time;
-            List<Message> list3 = messgaeRepository.findByAccetAndSendOrderBySendDesc(id, userId);
-            List<Message> list4 = messgaeRepository.findByAccetAndSendOrderBySendDesc(userId, id);
+            List<Message> list3 = messgaeRepository.findByAccetAndSendOrderBySendAsc(id, userId);
+            List<Message> list4 = messgaeRepository.findByAccetAndSendOrderBySendAsc(userId, id);
             System.out.println(list3.size());
             System.out.println(list4.size());
             if (list3.isEmpty() && !list4.isEmpty()) {
@@ -120,6 +120,5 @@ public class MessageService {
             clist.add(hashMap);
         }
         return clist;
-
     }
 }
