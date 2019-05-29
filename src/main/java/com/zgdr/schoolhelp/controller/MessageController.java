@@ -1,6 +1,5 @@
 package com.zgdr.schoolhelp.controller;
 
-import com.google.gson.JsonObject;
 import com.zgdr.schoolhelp.annotation.PassToken;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
@@ -42,13 +41,7 @@ public class MessageController {
     public Result getNewMessage(HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(messageService.getNewMessage(userId));
-    }
 
-    @UserLoginToken
-    @GetMapping(value = "/message/chatlist")
-    public Result getChatList(HttpServletRequest httpServletRequest){
-        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        return Result.success(messageService.getChetList(userId));
     }
 
     @UserLoginToken

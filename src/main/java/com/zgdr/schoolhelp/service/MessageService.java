@@ -1,8 +1,5 @@
 package com.zgdr.schoolhelp.service;
 
-
-import com.google.gson.JsonObject;
-
 import com.zgdr.schoolhelp.domain.HeadImage;
 import com.zgdr.schoolhelp.domain.Message;
 import com.zgdr.schoolhelp.repository.HeadImageRepository;
@@ -59,6 +56,7 @@ public class MessageService {
         List<Message> list = messgaeRepository.findByAccetAndState(userId,false);
         return list;
     }
+
 
     /**
      * 获取聊过天的列表
