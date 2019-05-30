@@ -1,5 +1,6 @@
 package com.zgdr.schoolhelp.controller;
 
+import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.RollImage;
 import com.zgdr.schoolhelp.service.ImageService;
@@ -34,6 +35,7 @@ public class ImageController {
      * @param  image 图片文件
      * @return result
      */
+    @UserLoginToken
     @ResponseBody
     @PostMapping(value = "/uploadimg/head")
     public Result uploadImage(@RequestParam MultipartFile image,
@@ -50,6 +52,7 @@ public class ImageController {
      *
      * @return result
      */
+    @UserLoginToken
     @GetMapping(value = "download/head")
     public Result getHeadImage(HttpServletRequest httpServletRequest){
         Integer userId= TokenUtil.getUserIdByRequest(httpServletRequest);
@@ -64,6 +67,7 @@ public class ImageController {
      * @param  image 图片文件
      * @return result
      */
+    @UserLoginToken
     @PostMapping(value = "uploadimage/roll")
     public Result uploadRollImage(@RequestParam MultipartFile image,
                                   @Valid RollImage rollImage,

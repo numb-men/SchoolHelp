@@ -27,7 +27,7 @@ public class Collect {
     private Integer userId;
 
     /* 收藏时间 */
-    private Date coolectTiem = new Date();
+    private Date collectTime = new Date();
 
     public Integer getCollectId() {
         return collectId;
@@ -53,19 +53,18 @@ public class Collect {
         this.userId = userId;
     }
 
-    public Date getCoolectTiem() {
-        return coolectTiem;
+    public Date getCollectTime() {
+        return collectTime;
     }
 
-    public void setCoolectTiem(Date coolectTiem) {
-        this.coolectTiem = coolectTiem;
+    public void setCollectTime(Date collectTime) {
+        this.collectTime = collectTime;
     }
 
-    public Collect(@NotBlank(message = "帖子ID不能为空") Integer postId,
-                   @NotBlank(message = "用户ID不能为空") Integer userId, Date coolectTiem) {
+    public Collect(Integer postId, Integer userId, Date collectTime) {
         this.postId = postId;
         this.userId = userId;
-        this.coolectTiem = coolectTiem;
+        this.collectTime = collectTime;
     }
 
     public Collect() {
@@ -77,7 +76,7 @@ public class Collect {
                 "collectId=" + collectId +
                 ", postId=" + postId +
                 ", userId=" + userId +
-                ", coolectTiem=" + coolectTiem +
+                ", collectTime=" + collectTime +
                 '}';
     }
 }

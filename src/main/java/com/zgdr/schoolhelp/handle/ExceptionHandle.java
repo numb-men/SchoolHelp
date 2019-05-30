@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 
 import javax.validation.ConstraintViolation;
@@ -47,6 +49,10 @@ public class ExceptionHandle {
             return Result.error(customException.getCode(), customException.getMsg());
         }
         else if(e instanceof MissingServletRequestParameterException){
+            // 缺少参数
+            return Result.error(-100, e.getMessage());
+        }
+        else if(e instanceof MissingServletRequestPartException) {
             // 缺少参数
             return Result.error(-100, e.getMessage());
         }
@@ -85,6 +91,11 @@ public class ExceptionHandle {
             MethodArgumentTypeMismatchException methodArgumentTypeMismatchException
                     = (MethodArgumentTypeMismatchException)e;
             return Result.error(-600, methodArgumentTypeMismatchException.getMessage());
+        }
+        else if (e instanceof MultipartException) {
+            // 请求文件格式不正确
+            MultipartException multipartException = (MultipartException) e;
+            return Result.error(-700, multipartException.getMessage());
         }
         else {
             logger.error("!!!系统异常!!!", e);

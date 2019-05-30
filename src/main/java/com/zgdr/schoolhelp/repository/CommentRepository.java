@@ -27,7 +27,7 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
       public List<Comment> getCommentByPostId(Integer id);
 
       /**
-       * 10获取贴子的评论用户列表
+       * 获取贴子的评论用户列表
        * @author fishkk
        * @since  2019/4/27
        *

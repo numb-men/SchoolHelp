@@ -66,12 +66,12 @@ public class MessageService {
      * @param userId 用户的id
      * @return HashMap
      */
-    public List<HashMap> getChetList(Integer userId) {
+    public List<HashMap> getChatList(Integer userId) {
         List<HashMap> clist = new ArrayList<>();
         //作为接收者
-        List<Message> list = messgaeRepository.findByAccetOrderBySendTimeAsc(userId);
+        List<Message> list = messgaeRepository.findByAccetOrderBySendTimeDesc(userId);
         //作为发送者
-        List<Message> list1 = messgaeRepository.findBySendOrderBySendTimeAsc(userId);
+        List<Message> list1 = messgaeRepository.findBySendOrderBySendTimeDesc(userId);
         List<Integer> list2 = new ArrayList<>();
         for (Message message : list) {
             list2.add(message.getSend());
@@ -94,8 +94,8 @@ public class MessageService {
             }
             String message;
             Date time;
-            List<Message> list3 = messgaeRepository.findByAccetAndSendOrderBySendAsc(id, userId);
-            List<Message> list4 = messgaeRepository.findByAccetAndSendOrderBySendAsc(userId, id);
+            List<Message> list3 = messgaeRepository.findByAccetAndSendOrderBySendTimeDesc(id, userId);
+            List<Message> list4 = messgaeRepository.findByAccetAndSendOrderBySendTimeDesc(userId, id);
             System.out.println(list3.size());
             System.out.println(list4.size());
             if (list3.isEmpty() && !list4.isEmpty()) {

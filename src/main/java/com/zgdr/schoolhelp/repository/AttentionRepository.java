@@ -16,11 +16,14 @@ import java.util.List;
 public interface AttentionRepository extends JpaRepository <Attention,Integer>{
 
     //由关注者attentionUserId查询关注表
-    public List<Attention> findAllByAttentionUserId(Integer attentionUserId);
+    List<Attention> findAllByAttentionUserId(Integer attentionUserId);
 
     //由关注表ID查询关注表
-    public Attention findByAttentionId(Integer attentionId);
+    Attention findByAttentionId(Integer attentionId);
 
     //由被关注者beAttentionUserId和关注者attentionUserId查询关注表
-    public Attention findByAttentionUserIdAndBeAttentionUserId(Integer attentionUserId, Integer beAttentionUserId);
+    Attention findByAttentionUserIdAndBeAttentionUserId(Integer attentionUserId, Integer beAttentionUserId);
+
+    // 获取粉丝数
+    Integer countAttentionByBeAttentionUserIdIn(Integer beAttentionUserId);
 }

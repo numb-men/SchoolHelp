@@ -2,6 +2,7 @@ package com.zgdr.schoolhelp.controller;
 
 import com.zgdr.schoolhelp.annotation.AdminLoginToken;
 import com.zgdr.schoolhelp.annotation.NotNull;
+import com.zgdr.schoolhelp.annotation.PassToken;
 import com.zgdr.schoolhelp.annotation.UserLoginToken;
 import com.zgdr.schoolhelp.domain.Result;
 import com.zgdr.schoolhelp.domain.Setting;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import java.util.List;
 
 /**
  * UserController
@@ -49,6 +51,20 @@ public class UserController {
     @Autowired
     StudentRepository studentRepository;
 
+
+    /**
+     * 判断用户Id列表内的用户是否已经认证
+     * @author hengyumo
+     * @since 2019/5/30
+     *
+     * @param userIds 用户Id列表
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @PassToken
+    @PutMapping(value = "/checkCertified")
+    public Result checkCertified(@RequestParam List<Integer> userIds){
+        return Result.success(userService.checkCertified(userIds));
+    }
 
     /**
      * 获取用户帮助成功的帖子列表
@@ -421,7 +437,7 @@ public class UserController {
     @GetMapping(value = {"", "/"})
     public Result getUserAll(HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-        return Result.success(userRepository.findById(userId));
+        return Result.success(userService.getUserAllData(userId));
     }
 
     /**
@@ -431,12 +447,15 @@ public class UserController {
      *
      * @return com.zgdr.schoolhelp.domain.Result
      */
-
     @GetMapping(value = "/{userId}")
-    public Result getUser(@PathVariable("userId") Integer userId){
+    public Result getUser(@PathVariable("userId") Integer userId, HttpServletRequest httpServletRequest){
+        String token = httpServletRequest.getHeader("token");
+        Integer selfUserId = -1;
+        if (token != null && !token.equals("")){
+            selfUserId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        }
 
-        return Result.success(userService.getUser(userId));
-
+        return Result.success(userService.getUser(selfUserId, userId));
     }
 
 
@@ -553,10 +572,9 @@ public class UserController {
      * @param httpServletRequest http请求
      * @return com.zgdr.schoolhelp.domain.Result
      **/
-
     @UserLoginToken
     @GetMapping(value = "/message/user")
-    public Result newMessage(@RequestParam Integer accept,
+    public Result getUserMessageWithUser(@RequestParam Integer accept,
                              HttpServletRequest httpServletRequest){
         Integer send  = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.correspondingMessage(send,accept));

@@ -81,6 +81,28 @@ public class UserService {
 
 
     /**
+     * 判断用户Id列表中的用户是否已经认证
+     * @author hengyumo
+     * @since 2019/5/30
+     *
+     * @param userIds 用户Id列表
+     * @return java.util.List<java.lang.Boolean>
+     */
+    public List<Boolean> checkCertified(List<Integer> userIds){
+        List<Boolean> result = new ArrayList<>();
+        for (Integer userId : userIds){
+            User user = userRepository.getUserById(userId);
+            if (user != null){
+                result.add(user.getCertified());
+            }
+            else {
+                throw new UserException(UserResultEnum.ID_NOT_FOUND);
+            }
+        }
+        return result;
+    }
+
+    /**
      * 获取所有用户
      * @author hengyumo
      * @since 2019/4/17
@@ -266,14 +288,14 @@ public class UserService {
         Collect collect = new Collect();
         collect.setUserId(userId);
         collect.setPostId(postId);
-        collect.setCoolectTiem(date);
+        collect.setCollectTime(date);
         collectRepository.saveAndFlush(collect);
         return collect.getCollectId();
     }
 
     /**
      * 获取用户收藏列表
-     * @author hengyumo（星夜、衡修改）
+     * @author hengyumo
      * @since 2019/5/27
      *
      * @param userId 用户id
@@ -281,60 +303,25 @@ public class UserService {
      */
     public Object getUserCollects(Integer userId) {
         List<Collect> collects = collectRepository.findByUserId(userId);
-
-        List<Integer> postIds = new ArrayList<>();
-        int num = 0;
-        //找到收藏帖子id
-        for (Collect collect : collects) {
-            postIds.add(collect.getPostId());
-            num ++ ;
-        }
-
-        //找到收藏时间
-        Date []t = new Date[num];
-        int i = 0;
-        for (Collect collect : collects) {
-            t[i] = collect.getCoolectTiem();
-            i++ ;
-        }
-
-        //由帖子id找到帖子
-        List<Post> posts = postRepository.findAllById(postIds);
-
-        //
-        List<Integer> userIds = new ArrayList<>();
-        for (Post post : posts){
-            userIds.add(post.getUserId());
-        }
-
-        List<User> users = userRepository.findAllById(userIds);
-
-        List<HeadImage> headImages = new ArrayList<>();
-
-        for (User user : users){
-            HeadImage headImage = headImageRepository.getHeadImageByUserId(user.getId());
-            headImages.add(headImage);
-        }
-        int k = 0;
-        List<JSONObject> userCollects = new ArrayList<>();
-        for (Post post : posts){
+        List<JSONObject> result = new ArrayList<>();
+        for (Collect collect : collects){
             JSONObject jsonObject = new JSONObject();
+            Post post = postRepository.findByPostIdIn(collect.getPostId());
             jsonObject.put("postId",post.getPostId());
             jsonObject.put("title",post.getTitle());
             jsonObject.put("content",post.getContent());
-            jsonObject.put("collectTime",t[k]);
+            jsonObject.put("collectTime",collect.getCollectTime());
 
-            HeadImage headImage = headImages.get(k);
-            jsonObject.put("imageUrl",headImage.getImageUrl());
+            Integer postUserId = post.getUserId();
+            HeadImage headImage = headImageRepository.getHeadImageByUserId(postUserId);
+            jsonObject.put("imageUrl",(headImage == null?
+                    "http://ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05": headImage.getImageUrl()));
+            jsonObject.put("name",post.getUserName());
 
-            User user = users.get(k);
-            jsonObject.put("name",user.getName());
-
-            userCollects.add(jsonObject);
-            k++;
+            result.add(jsonObject);
         }
 
-        return userCollects;
+        return result;
     }
 
     /**
@@ -354,6 +341,10 @@ public class UserService {
         } else if (! collect.getUserId().equals(userId)){
             throw new UserException((UserResultEnum.NO_POWER)); // 只能删除自己的收藏
         }
+        // 收藏数减一
+        User user = userRepository.findById(userId).orElse(null);
+        user.setCollectPostNum(user.getCollectPostNum() - 1);
+        userRepository.saveAndFlush(user);
 
         collectRepository.delete(collect);
         return null;
@@ -428,7 +419,7 @@ public class UserService {
     }
 
     /**
-     * 获取对应用户的所有帖子，按时间倒序
+     * 获取对应用户的所有评论，按时间倒序
      * @author hengyumo
      * @since 2019/5/28
      *
@@ -567,6 +558,13 @@ public class UserService {
             throw new UserException(UserResultEnum.CANT_ATTENTION_YOUSELF);
         }
         Attention attention = attentionRepository.findByAttentionUserIdAndBeAttentionUserId(attentionUserId,beAttentionUserId);
+        if (attention == null) {
+            throw new UserException(UserResultEnum.CANT_CANCEL_ATTENTION);
+        }
+        // 关注数-1
+        User user = userRepository.findById(attentionUserId).orElse(null);
+        user.setFollowNum(user.getFollowNum() - 1);
+        userRepository.saveAndFlush(user);
 
         attentionRepository.delete(attention);
         return null;
@@ -799,7 +797,7 @@ public class UserService {
         user.setStudentNum(studentNum);
         if ("男".equals(sex)){
             user.setSex(true);
-        }else if("女".equals(true)){
+        }else if("女".equals(sex)){
             user.setSex(false);
         }else {
             throw new UserException(UserResultEnum.ERROR_SEX);
@@ -816,8 +814,8 @@ public class UserService {
         jsonObject.put("sex",user.getSex()?"男":"女");
         jsonObject.put("mail",user.getMail());
         jsonObject.put("studentNum",user.getStudentNum());
-        jsonObject.put("majorId",user.getMajor());
-        jsonObject.put("collegeId",user.getCollege());
+        jsonObject.put("major",user.getMajor());
+        jsonObject.put("college",user.getCollege());
 
         return jsonObject;
 
@@ -915,8 +913,8 @@ public class UserService {
         List<Message> acceptUserMessage = messgaeRepository.findBySendAndAccet(accept,send);
 
         //将两个消息合并在 allMessage中
-        List<Message> allMessage = messgaeRepository.findBySendAndAccet(send,accept);
-        allMessage.addAll(acceptUserMessage);
+        sendUserMessages.addAll(acceptUserMessage);
+        List<Message> allMessage =  sendUserMessages;
 
         Collections.sort(allMessage, new Comparator<Message>() {
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -929,29 +927,53 @@ public class UserService {
         List<JSONObject> jsonObjects = new ArrayList<>();
         for (Message message : allMessage){
             JSONObject jsonObject = new JSONObject();
-            if(send.equals(message.getSend()) && accept.equals(message.getAccet())){
-                jsonObject.put("messageId",message.getMessageId());
-                jsonObject.put("send",message.getSend());
-                jsonObject.put("accept",message.getAccet());
-                jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
-                jsonObject.put("messageContent",message.getMessageContent());
-                jsonObject.put("sendTime",message.getSendTime());
-                jsonObject.put("state",message.isState());
-            }
-            else{
-                jsonObject.put("messageId",message.getMessageId());
-                jsonObject.put("accept",message.getSend());
-                jsonObject.put("send",message.getAccet());
-                jsonObject.put("imageUrl",headImageRepository.getHeadImageByUserId(accept).getImageUrl());
-                jsonObject.put("name",acceptUser.getName());
-                jsonObject.put("isOnline",acceptUser.getOnline());
-                jsonObject.put("messageContent",message.getMessageContent());
-                jsonObject.put("sendTime",message.getSendTime());
-                jsonObject.put("state",message.isState());
-            }
+            jsonObject.put("messageId",message.getMessageId());
+            jsonObject.put("send",message.getSend());
+            jsonObject.put("accept",message.getAccet());
+            jsonObject.put("headImageUrl",headImageRepository.getHeadImageByUserId(send).getImageUrl());
+            jsonObject.put("messageContent",message.getMessageContent());
+            jsonObject.put("sendTime",message.getSendTime());
+            jsonObject.put("state",message.isState());
             jsonObjects.add(jsonObject);
         }
         return jsonObjects;
+    }
+
+    /**
+     * 获取用户的全部信息
+     * @author hengyumo
+     * @since 2019/5/29
+     *
+     * @param userId 用户Id
+     * @return com.alibaba.fastjson.JSONObject
+     */
+    public JSONObject getUserAllData(Integer userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        HeadImage headImage = headImageRepository.getHeadImageByUserId(userId);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("headImageUrl", headImage.getImageUrl());
+        jsonObject.put("id", userId);
+        jsonObject.put("name", user.getName());
+        jsonObject.put("phone", user.getPhone());
+//        jsonObject.put("password", user.getPassword());
+        jsonObject.put("sex", user.getSex()?"男":"女");
+        jsonObject.put("college", user.getCollege());
+        jsonObject.put("major", user.getMajor());
+        jsonObject.put("studentNum", user.getStudentNum());
+        jsonObject.put("mail", user.getMail());
+        jsonObject.put("birthdate", user.getBirthdate());
+        jsonObject.put("points", user.getPoints());
+        jsonObject.put("collectPostNum", user.getCollectPostNum());
+        jsonObject.put("followNum", user.getFollowNum());
+        jsonObject.put("postNum", user.getPostNum());
+        jsonObject.put("commentNum", user.getCommentNum());
+        jsonObject.put("role", user.getRole());
+        jsonObject.put("isCertified", user.getCertified());
+        jsonObject.put("isOnline", user.getOnline());
+//        jsonObject.put("registerTime", user.getPassword());
+//        jsonObject.put("lastTime", user.getPassword());
+
+        return jsonObject;
     }
 
     /**
@@ -962,7 +984,7 @@ public class UserService {
      * @return jsonObject
      */
 
-    public Object getUser(Integer userId){
+    public Object getUser(Integer selfUserId, Integer userId){
 
         User user =  userRepository.findById(userId).orElse(null);
         HeadImage headImage = headImageRepository.findByUserId(userId);
@@ -972,23 +994,36 @@ public class UserService {
         if (headImage == null){
             throw new UserException(UserResultEnum.NO_AVATAR_EXISTS);
         }
-        if (user.getName() == null || user.getCollectPostNum() == null ||
-                user.getFollowNum() == null || user.getFollowNum() == null||
+        if (user.getName() == null || user.getCollectPostNum() == null || user.getFollowNum() == null||
                 user.getPostNum() ==null || user.getCommentNum()==null){
             throw new UserException(UserResultEnum.INCOMPLETE_USER_INFORMATION);
         }
 
         JSONObject jsonObject = new JSONObject();
+
+        if (selfUserId == -1){
+            jsonObject.put("status", "游客");
+        }
+        else {
+            jsonObject.put("status", "用户");
+            Attention attention = attentionRepository.findByAttentionUserIdAndBeAttentionUserId(selfUserId, userId);
+            jsonObject.put("hasFollow", attention!=null);
+        }
+
         jsonObject.put("id",user.getId());
         jsonObject.put("name",user.getName());
         jsonObject.put("collectPostNum",user.getCollectPostNum());
         jsonObject.put("followNum",user.getFollowNum());
+        Integer followerNum = attentionRepository.countAttentionByBeAttentionUserIdIn(userId);
+        jsonObject.put("followerNum", followerNum);
         jsonObject.put("postNum",user.getPostNum());
         jsonObject.put("commentNum",user.getCommentNum());
         jsonObject.put("certified",user.getCertified());
         jsonObject.put("online",user.getOnline());
         jsonObject.put("sex",user.getSex()?"男":"女");
-        jsonObject.put("imageUrl",headImage.getImageUrl());
+        jsonObject.put("college", user.getCollege());
+        jsonObject.put("major", user.getMajor());
+        jsonObject.put("headImageUrl",headImage.getImageUrl());
         return jsonObject;
     }
 }

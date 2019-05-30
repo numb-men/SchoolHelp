@@ -34,7 +34,7 @@ public class UploadImageUtil {
         if (!image.getContentType().equals("image/png") && !image.getContentType().equals("image/jpeg")){
            // System.out.println(image.getContentType());
             throw new ImageException(ImageResultEnum.TYPE_ERROR);
-        };
+        }
         QiniuCloudUtil qiniuUtil = new QiniuCloudUtil();
         String url;
             try {
@@ -44,7 +44,7 @@ public class UploadImageUtil {
                 try {
                     //使用base64方式上传到七牛云
                     //存储图片并返回图片储存的url
-                    url = qiniuUtil.put64image(bytes, imageName);
+                    url = "http://" + qiniuUtil.put64image(bytes, imageName);
                     //记录存到数据库
                     return url;
                 } catch (Exception e) {

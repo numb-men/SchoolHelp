@@ -44,7 +44,7 @@ public class AccountService {
      */
     @Transactional
     public String register(String phone, String password){
-        String image = "ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05";
+        String image = "http://ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05";
         if (! StringUtil.isGoodPasseord(password)){
             throw new AccountException(AccountResultEnum.NOT_GOOD_PASSWORD);
         }

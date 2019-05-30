@@ -42,7 +42,8 @@ public enum UserResultEnum implements ResultEnum {
     SEX_NULL(-60,"请填入性别"),
     NO_REGISTER(-61,"学生未注册"),
     NO_MAIL(-62,"请填入邮箱"),
-    ERROR_SEX(-63,"性别填写错误");
+    ERROR_SEX(-63,"性别填写错误"),
+    CANT_CANCEL_ATTENTION(-64, "还未关注不能取消关注")
     ;
 
     private Integer code;

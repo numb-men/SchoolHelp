@@ -1,12 +1,16 @@
 package com.zgdr.schoolhelp.service;
 
+import com.zgdr.schoolhelp.domain.Comment;
 import com.zgdr.schoolhelp.domain.HeadImage;
+import com.zgdr.schoolhelp.domain.Post;
 import com.zgdr.schoolhelp.domain.RollImage;
 import com.zgdr.schoolhelp.enums.GlobalResultEnum;
 import com.zgdr.schoolhelp.enums.ImageResultEnum;
 import com.zgdr.schoolhelp.exception.GlobalException;
 import com.zgdr.schoolhelp.exception.ImageException;
+import com.zgdr.schoolhelp.repository.CommentRepository;
 import com.zgdr.schoolhelp.repository.HeadImageRepository;
+import com.zgdr.schoolhelp.repository.PostRepository;
 import com.zgdr.schoolhelp.repository.RollImageRepository;
 import com.zgdr.schoolhelp.utils.QiniuCloudUtil;
 import com.zgdr.schoolhelp.utils.UploadImageUtil;
@@ -35,6 +39,12 @@ public class ImageService {
     @Resource
     private UserService userService;
 
+    @Resource
+    private PostRepository postRepository;
+
+    @Resource
+    private CommentRepository commentRepository;
+
     /**
      * 上传头像到七牛云，并保存url到数据库，如果数据库中有该用户头像，则更新
      * @author yangji
@@ -55,13 +65,28 @@ public class ImageService {
             try{
                 String key = fheadImage.getImageUrl();
                 //删除已存在七牛云的旧头像,如果当前头像是默认头像则不删除
-                if(!key.equals("ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05")){
+                if(!key.equals("http://ps0mdxwdu.bkt.clouddn.com/74d5deb3-0921-4e74-acef-0b1fee696c05")){
                     qiniuUtil.delete(key);
                 }
                 //更新数据库的新图片的url
                 HeadImage headImage=new HeadImage(uploadImageUtil.uploadImage(image),userId);
                 headImage.setImageId(fheadImage.getImageId());
                 headImageRepository.save(headImage);
+
+                // 修改关联的帖子的头像
+                List<Post> posts = postRepository.findAllByUserId(userId);
+                for (Post post : posts) {
+                    post.setHeadImageUrl(headImage.getImageUrl());
+                }
+                postRepository.saveAll(posts);
+
+                // 修改关联的评论的头像
+                List<Comment> comments = commentRepository.findAllByUserId(userId);
+                for (Comment comment : comments) {
+                    comment.setHeadImageUrl(headImage.getImageUrl());
+                }
+                commentRepository.saveAll(comments);
+
             }catch(IOException e){
                 throw new GlobalException(GlobalResultEnum.UNKNOW_ERROR);
             }
