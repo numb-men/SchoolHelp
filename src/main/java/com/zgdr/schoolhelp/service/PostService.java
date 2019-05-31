@@ -549,7 +549,8 @@ public class PostService {
             }
             return hotwords;
         }
-       Integer length= hotWords.size()<5 ? hotWords.size() : 5;
+        Integer length= hotWords.size()<5 ? hotWords.size() : 5;
+        hotWords.sort((x, y) -> y.getTimes().compareTo(x.getTimes()));
         for (int i = 0; i<length; i++){
             hotwords.add(hotWords.get(i).getHotWord());
         }
