@@ -62,6 +62,8 @@ public class PostService {
     @Resource
     private HotWordRepository hotWordRepository;
 
+    @Resource
+    private CollectRepository collectRepository;
 
     /**
      * 返回全部贴子信息
@@ -241,7 +243,7 @@ public class PostService {
 
     /**
      * 删除自己的贴子
-     * @author fishkk
+     * @author hengyumo
      * @since 2019/4/24
      *
      * @param userId 用户id
@@ -256,14 +258,38 @@ public class PostService {
         if (! userId.equals(post.getUserId())&&!userService.checkPower(userId)){
             throw new GlobalException(GlobalResultEnum.NOT_POWER);
         }
-        reportRepository.deleteByPostId(postId);
-        commentRepository.deleteByPostId(postId);
-        approvalRepository.deleteByPostId(postId);
-        postImageRepostiry.deleteAllByPostId(postId);
 
-        User user = userRepository.findById(userId).orElse(null);
-        user.setPostNum(user.getPostNum()-1);
-        userRepository.saveAndFlush(user);
+        // 删除之后帖子的评论之后重新设定对应评论者的评论数
+        List<Comment> comments = commentRepository.findAllByPostId(postId);
+        commentRepository.deleteByPostId(postId);
+        for (Comment comment : comments){
+            User commentUser = userRepository.getUserById(comment.getUserId());
+            if (commentUser != null) {
+                commentUser.setCommentNum(commentRepository.countByUserId(commentUser.getId()));
+                userRepository.save(commentUser);
+            }
+        }
+
+        // 重新设定帖子的收藏数
+        List<Collect> collects = collectRepository.findAllByPostId(postId);
+        collectRepository.deleteAllByPostId(postId);
+        for (Collect collect : collects){
+            User collectUser = userRepository.getUserById(collect.getUserId());
+            if (collectUser != null){
+                collectUser.setCollectPostNum(collectRepository.countByUserId(collectUser.getId()));
+                userRepository.save(collectUser);
+            }
+        }
+
+        // 重新设定帖主的帖子数
+        User postUser = userRepository.findById(userId).orElse(null);
+        if (postUser != null) {
+            postUser.setPostNum(postUser.getPostNum()-1);
+            userRepository.saveAndFlush(postUser);
+        }
+
+        reportRepository.deleteByPostId(postId);
+        postImageRepostiry.deleteAllByPostId(postId);
         postRepository.delete(post);
     }
 
@@ -366,7 +392,7 @@ public class PostService {
       * @return  相关的set或者list
       */
     public List<Comment> getCommentByPostID(Integer postId){
-       return commentRepository.getCommentByPostId(postId);
+       return commentRepository.findAllByPostIdOrderByCommentTimeDesc(postId);
     }
 
     public Set<Integer> getApprovalList(Integer postId){
@@ -513,6 +539,13 @@ public class PostService {
         if(post == null){
             throw new PostException(PostResultEnum.NOT_FOUND);
         }
+
+
+        // 判断是不是帖主本人
+        if (!userId.equals(post.getUserId())){
+            throw new PostException(PostResultEnum.NOT_POST_MASTER);
+        }
+
         Integer points = post.getPoints();
         userget.setPoints(userget.getPoints()+points);
         post.setPoints(0);

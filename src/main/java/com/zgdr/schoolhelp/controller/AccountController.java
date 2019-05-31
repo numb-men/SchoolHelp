@@ -70,6 +70,21 @@ public class AccountController {
     }
 
     /**
+     * 登出
+     * @author hengyumo
+     * @since 2019/5/31
+     *
+     * @param httpServletRequest http请求
+     * @return com.zgdr.schoolhelp.domain.Result
+     */
+    @UserLoginToken
+    @GetMapping(value = "/logout")
+    public Result logout(HttpServletRequest httpServletRequest) {
+        Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
+        return Result.success(accountService.logout(userId));
+    }
+
+    /**
      * 修改密码
      * @author hengyumo
      * @since 2019/4/25

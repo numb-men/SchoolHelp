@@ -27,4 +27,10 @@ public interface CollectRepository extends JpaRepository<Collect, Integer> {
     Collect findByCollectIdIn(Integer postId);
 
     Collect findByPostIdAndUserIdIn(Integer userId, Integer postId);
+
+    List<Collect> findAllByPostId(Integer postId);
+
+    Integer countByUserId(Integer userId);
+
+    void deleteAllByPostId(Integer postId);
 }

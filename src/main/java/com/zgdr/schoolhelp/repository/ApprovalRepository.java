@@ -51,4 +51,5 @@ public interface ApprovalRepository extends JpaRepository<Approval, Integer>{
 
     Approval findByPostIdAndUserId(Integer postId, Integer userId);
 
+    List<Approval> findAllByPostId(Integer postId);
 }

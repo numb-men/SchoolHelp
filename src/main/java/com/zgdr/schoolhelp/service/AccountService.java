@@ -87,6 +87,22 @@ public class AccountService {
     }
 
     /**
+     * 登出
+     * @author hengyumo
+     * @since 2019/5/31
+     *
+     * @param userId 用户Id
+     * @return java.lang.Object
+     */
+    public Object logout(Integer userId){
+        User user = userRepository.getUserById(userId);
+        user.setOnline(false);
+        user.setLastTime(new Date());
+        userRepository.save(user);
+        return null;
+    }
+
+    /**
      * 修改密码
      * @author hengyumo
      * @since 2019/4/25

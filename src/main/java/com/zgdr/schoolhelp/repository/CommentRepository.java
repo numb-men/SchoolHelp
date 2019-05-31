@@ -15,16 +15,8 @@ import java.util.Set;
  * @since 2019/4/27
  */
 public interface CommentRepository extends JpaRepository<Comment, Integer>{
-      /**
-       *  放回贴子的评论列表
-       * @author fishkk
-       * @since 2019/4/27
-       *
-       * @param  id 贴子id
-       * @return    评论列表List<Comment>
-       */
-      @Query(value = "SELECT * FROM comment WHERE post_id=?1", nativeQuery = true)
-      public List<Comment> getCommentByPostId(Integer id);
+
+      List<Comment> findAllByPostIdOrderByCommentTimeDesc(Integer postId);
 
       /**
        * 获取贴子的评论用户列表
@@ -57,4 +49,8 @@ public interface CommentRepository extends JpaRepository<Comment, Integer>{
        * @since 2019/5/28
        */
       List<Comment> findAllByUserIdOrderByCommentTimeDesc(Integer userId);
+
+      List<Comment> findAllByPostId(Integer postId);
+
+      Integer countByUserId(Integer userId);
 }

@@ -468,13 +468,13 @@ public class UserController {
      */
     @UserLoginToken
     @PutMapping(value = {"", "/"})
-    public Result updateUser (@RequestParam String name,
-                              @RequestParam String phone,
-                              @RequestParam String sex,
-                              @RequestParam String studentNum,
-                              @RequestParam String major,
-                              @RequestParam String college,
-                              @RequestParam String mail,
+    public Result updateUser (@RequestParam(required = false) String name,
+                              @RequestParam(required = false) String phone,
+                              @RequestParam(required = false) String sex,
+                              @RequestParam(required = false) String studentNum,
+                              @RequestParam(required = false) String major,
+                              @RequestParam(required = false) String college,
+                              @RequestParam(required = false) String mail,
                               HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
         return Result.success(userService.updateUser(userId,name,phone,sex, studentNum,major,college,mail));

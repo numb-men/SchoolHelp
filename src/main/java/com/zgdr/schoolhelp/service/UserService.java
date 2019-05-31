@@ -289,6 +289,12 @@ public class UserService {
         collect.setUserId(userId);
         collect.setPostId(postId);
         collect.setCollectTime(date);
+
+        // 用户收藏数+1
+        User user = userRepository.getUserById(userId);
+        user.setCollectPostNum(user.getCollectPostNum()+1);
+        userRepository.save(user);
+
         collectRepository.saveAndFlush(collect);
         return collect.getCollectId();
     }
@@ -540,6 +546,12 @@ public class UserService {
         attention.setAttentionUserId(attentionUserId);
         attention.setBeAttentionUserId(beAttentionUserId);
         attentionRepository.saveAndFlush(attention);
+
+        // 用户关注数+1
+        User attentionUser = userRepository.getUserById(attentionUserId);
+        attentionUser.setFollowNum(attentionUser.getFollowNum() + 1);
+        userRepository.save(attentionUser);
+
         return attention.getAttentionId();
     }
 
@@ -739,86 +751,44 @@ public class UserService {
      * @since 2019/4/29
      *
      * @param userId 用户id
-     * @param
      * @return null
      */
-    public Object updateUser(Integer userId,String name,String phone,String sex,String studentNum,String major, String college,String mail) {
+    public Object updateUser(Integer userId,String name,String phone,String sex,String studentNum,String major,
+                             String college,String mail) {
 
-        if (name == null){
-            throw new UserException(UserResultEnum.NAME_NULL);
-        }
-        if (sex == null){
-            throw new UserException(UserResultEnum.SEX_NULL);
-        }
-        /*
-        Student student = studentRepository.findAllByUserId(userId).get(0);
-        if (student == null){
-            throw new UserException(UserResultEnum.NO_REGISTER);
-        }
-        */
-        if (studentNum == null){
-            throw new UserException(UserResultEnum.SCHOOLNAME_NULL);
-        }
-
-        if (major == null){
-            throw new UserException(UserResultEnum.MAJOR_NULL);
-        }
-        /*
-        Major major = majorRepository.findById(majorId).orElse(null);
-
-        if (major == null){//专业不存在
-            throw new UserException(UserResultEnum.MAJOR_NULL);
-        }
-        */
-
-        if (college == null){
-            throw new UserException(UserResultEnum.COLLEGE_NULL);
-        }
-        /*
-        College college = collegeRepository.findById(collegeId).orElse(null);
-
-        if (college == null){   //学院不存在
-            throw new UserException(UserResultEnum.COLLEGE_NULL);
-        }
-        */
-        if(mail == null){
-            throw new UserException(UserResultEnum.NO_MAIL);
-        }
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null){
-            throw new UserException(UserResultEnum.USER_NOT_FIND);
+        if (user != null) {
+            if(major != null) user.setMajor(major);
+            if(name != null) user.setName(name);
+            if(phone != null) user.setPhone(phone);
+            if(college != null) user.setCollege(college);
+            if(studentNum != null) user.setStudentNum(studentNum);
+            if(mail != null) user.setMail(mail);
+            if(sex != null){
+                if ("男".equals(sex)){
+                    user.setSex(true);
+                }else if("女".equals(sex)){
+                    user.setSex(false);
+                }else {
+                    throw new UserException(UserResultEnum.ERROR_SEX);
+                }
+            }
+            userRepository.saveAndFlush(user);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id",user.getId());
+            jsonObject.put("name",user.getName());
+            jsonObject.put("phone",user.getPhone());
+            jsonObject.put("sex",user.getSex()?"男":"女");
+            jsonObject.put("mail",user.getMail());
+            jsonObject.put("studentNum",user.getStudentNum());
+            jsonObject.put("major",user.getMajor());
+            jsonObject.put("college",user.getCollege());
+            return jsonObject;
         }
-
-        user.setMajor(major);
-        user.setId(userId);
-        user.setName(name);
-        user.setPhone(phone);
-        user.setCollege(college);
-        user.setStudentNum(studentNum);
-        if ("男".equals(sex)){
-            user.setSex(true);
-        }else if("女".equals(sex)){
-            user.setSex(false);
-        }else {
-            throw new UserException(UserResultEnum.ERROR_SEX);
+        else {
+            throw new GlobalException(GlobalResultEnum.USER_NOT_FIND);
         }
-        user.setMail(mail);
-        userRepository.saveAndFlush(user);
-
-
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id",user.getId());
-        jsonObject.put("name",user.getName());
-        jsonObject.put("phone",user.getPhone());
-        jsonObject.put("sex",user.getSex()?"男":"女");
-        jsonObject.put("mail",user.getMail());
-        jsonObject.put("studentNum",user.getStudentNum());
-        jsonObject.put("major",user.getMajor());
-        jsonObject.put("college",user.getCollege());
-
-        return jsonObject;
-
     }
 
     /**
@@ -843,7 +813,7 @@ public class UserService {
 
     /**
      * 获取当前用户的关注列表
-     * @author 星夜、痕
+     * @author hengyumo
      * @since 2019/5/27
      *
      * @return jsonObjects
@@ -852,38 +822,21 @@ public class UserService {
     public Object getUserAttention(Integer usrId){
 
         List<Attention> attentions = attentionRepository.findAllByAttentionUserId(usrId);
-        List<Integer> beAttentionUserIds = new ArrayList<>();
 
+        List<JSONObject> result = new ArrayList<>();
         for (Attention attention : attentions){
-            beAttentionUserIds.add(attention.getBeAttentionUserId());
-        }
-        List<User> users =  userRepository.findAllById(beAttentionUserIds);
-
-
-        List<JSONObject> jsonObjects = new ArrayList<>();
-
-        List<HeadImage> headImages = new ArrayList<>();
-
-        for (User user : users){
-            HeadImage headImage = headImageRepository.getHeadImageByUserId(user.getId());
-            headImages.add(headImage);
-        }
-
-        int i = 1;
-        for (User user : users){
+            User user = userRepository.getUserById(attention.getBeAttentionUserId());
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("id",user.getId());
             jsonObject.put("name",user.getName());
             jsonObject.put("followNum",user.getFollowNum());
             jsonObject.put("isCertified", user.getCertified());
 
-            HeadImage headImage = headImages.get(i);
+            HeadImage headImage = headImageRepository.getHeadImageByUserId(attention.getBeAttentionUserId());
             jsonObject.put("imageUrl",headImage.getImageUrl());
-            jsonObjects.add(jsonObject);
+            result.add(jsonObject);
         }
-
-        return  jsonObjects;
-
+        return  result;
     }
 
     /**
@@ -955,7 +908,7 @@ public class UserService {
         jsonObject.put("id", userId);
         jsonObject.put("name", user.getName());
         jsonObject.put("phone", user.getPhone());
-//        jsonObject.put("password", user.getPassword());
+        jsonObject.put("password", user.getPassword());
         jsonObject.put("sex", user.getSex()?"男":"女");
         jsonObject.put("college", user.getCollege());
         jsonObject.put("major", user.getMajor());
@@ -971,7 +924,7 @@ public class UserService {
         jsonObject.put("isCertified", user.getCertified());
         jsonObject.put("isOnline", user.getOnline());
 //        jsonObject.put("registerTime", user.getPassword());
-//        jsonObject.put("lastTime", user.getPassword());
+        jsonObject.put("lastTime", user.getLastTime());
 
         return jsonObject;
     }
@@ -1012,6 +965,7 @@ public class UserService {
 
         jsonObject.put("id",user.getId());
         jsonObject.put("name",user.getName());
+        jsonObject.put("points", user.getPoints());
         jsonObject.put("collectPostNum",user.getCollectPostNum());
         jsonObject.put("followNum",user.getFollowNum());
         Integer followerNum = attentionRepository.countAttentionByBeAttentionUserIdIn(userId);

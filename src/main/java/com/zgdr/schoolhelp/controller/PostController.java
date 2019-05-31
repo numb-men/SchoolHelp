@@ -317,7 +317,7 @@ public class PostController {
                            @RequestParam("submitCommentId") Integer submitCommentId,
                            HttpServletRequest httpServletRequest){
         Integer userId = TokenUtil.getUserIdByRequest(httpServletRequest);
-         postService.sumbitPost(userId,postId,submitCommentId);
+        postService.sumbitPost(userId,postId,submitCommentId);
         return Result.success(null);
     }
 

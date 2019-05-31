@@ -35,7 +35,9 @@ public enum PostResultEnum implements ResultEnum {
 
     REPEAT_REPORT(-56,"你已经举报过该帖子"),
 
-    NOT_FOUND_COMMENT(-57,"该评论已不存在");
+    NOT_FOUND_COMMENT(-57,"该评论已不存在"),
+
+    NOT_POST_MASTER(-58, "非帖主不能结贴")
     ;
 
     private Integer code;
