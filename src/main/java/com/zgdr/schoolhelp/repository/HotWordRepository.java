@@ -15,4 +15,5 @@ import java.util.List;
 public interface HotWordRepository extends JpaRepository<HotWord, Integer> {
     HotWord findByHotWord(String keyWord);
     List<HotWord> findAllByOrderByTimesDesc();
+    List<HotWord> findAllByOrderByRecentTimeDesc();
 }

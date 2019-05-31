@@ -547,21 +547,22 @@ public class PostService {
      */
     public List<String> hotWord(){
         List<String> hotwords = new ArrayList<>();
-        //按次数递减排序
-        List<HotWord> hotWords = hotWordRepository.findAllByOrderByTimesDesc();
+        //按时间最近排序
+        List<HotWord> hotWords = hotWordRepository.findAllByOrderByRecentTimeDesc();
         List<HotWord> hotWords1 = new ArrayList<>();
-        //记录大于200条时，取次数排行前50条，按时间最近排序
+        //记录大于200条时，取次数排行前50条，按次数最近排序
         if(hotWords.size() > 200){
             for (int i = 0;i < 50; i++){
                 hotWords1.add(hotWords.get(i));
             }
-            hotWords1.sort((x, y) -> y.getRecentTime().compareTo(x.getRecentTime()));
+            hotWords1.sort((x, y) -> y.getTimes().compareTo(x.getTimes()));
             for (int i = 0; i<5; i++){
                 hotwords.add(hotWords1.get(i).getHotWord());
             }
             return hotwords;
         }
-       Integer length= hotWords.size()<5 ? hotWords.size() : 5;
+        Integer length= hotWords.size()<5 ? hotWords.size() : 5;
+        hotWords.sort((x, y) -> y.getTimes().compareTo(x.getTimes()));
         for (int i = 0; i<length; i++){
             hotwords.add(hotWords.get(i).getHotWord());
         }
