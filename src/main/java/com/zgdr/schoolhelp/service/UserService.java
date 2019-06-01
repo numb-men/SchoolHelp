@@ -759,7 +759,20 @@ public class UserService {
         User user = userRepository.findById(userId).orElse(null);
         if (user != null) {
             if(major != null) user.setMajor(major);
-            if(name != null) user.setName(name);
+            if(name != null){
+                user.setName(name);
+                // 修改对应的帖子、评论用户名
+                List<Post> posts = postRepository.findAllByUserId(userId);
+                for (Post post : posts) {
+                    post.setUserName(name);
+                    postRepository.save(post);
+                }
+                List<Comment> comments = commentRepository.findAllByUserId(userId);
+                for (Comment comment : comments) {
+                    comment.setCommentUserName(name);
+                    commentRepository.save(comment);
+                }
+            }
             if(phone != null) user.setPhone(phone);
             if(college != null) user.setCollege(college);
             if(studentNum != null) user.setStudentNum(studentNum);

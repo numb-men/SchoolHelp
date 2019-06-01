@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HelloWorldController {
 
-    @GetMapping(value = "/")
+    @GetMapping(value = "/hello")
     public String say() {
 
         // 使用thymleaf模板引擎
