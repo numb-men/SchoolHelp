@@ -98,7 +98,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.57</version>
+            <version>1.2.83</version>
         </dependency>
 
         <!--lombok自动生成get、set、构造器-->
